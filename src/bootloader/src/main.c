@@ -171,6 +171,13 @@ EFI_STATUS get_memory_map(OUT VOID **memory_map,
 
 UINT32 pixel_buffer[1280 * 1080];
 
+UINTN __strcmp(CHAR8 *a, CHAR8 *b, UINTN length) {
+    for (UINTN i = 0; i < length; i++)
+        if (*a != *b)
+            return 0;
+    return 1;
+}
+
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
                            EFI_SYSTEM_TABLE *SystemTable) {
     /** Main bootloader application status. */
@@ -324,8 +331,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 
     boot_info.video_mode_info.framebuffer_pointer =
         (VOID *)graphics_output_protocol->Mode->FrameBufferBase;
-    boot_info.video_mode_info.framebuffer_size =
-        (VOID *)graphics_output_protocol->Mode->FrameBufferSize;
+    boot_info.video_mode_info.framebuffer_size = graphics_output_protocol->Mode->FrameBufferSize;
     boot_info.video_mode_info.pixel_buffer = pixel_buffer;
     boot_info.video_mode_info.horizontal_resolution =
         graphics_output_protocol->Mode->Info->HorizontalResolution;
@@ -333,6 +339,20 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
         graphics_output_protocol->Mode->Info->VerticalResolution;
     boot_info.video_mode_info.pixels_per_scaline =
         graphics_output_protocol->Mode->Info->PixelsPerScanLine;
+
+    EFI_CONFIGURATION_TABLE *config_table = SystemTable->ConfigurationTable;
+    void *rsdp = NULL;
+    EFI_GUID ACPI_TO_TABLE_GUID = ACPI_20_TABLE_GUID;
+
+    for (UINTN index = 0; index < SystemTable->NumberOfTableEntries; index++) {
+        if (CompareGuid(&config_table[index].VendorGuid, &ACPI_TO_TABLE_GUID)) {
+            if (__strcmp((CHAR8 *)"RSD PTR ", (CHAR8 *)config_table->VendorTable, 8)) {
+                rsdp = (void *)config_table->VendorTable;
+            }
+        }
+        config_table++;
+    }
+    boot_info.rsdp = rsdp;
 
 #ifdef DEBUG
     debug_print_line(L"Debug: Closing Graphics Output Service handles\n");

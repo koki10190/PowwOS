@@ -133,6 +133,7 @@ void calculator_init() {
         calculator_window = &windows[window_init((vector2_t){150, 150}, (vector2_t){250, 350}, "Calculator", calculator_update)];
         calculator_window->active = true;
         calculator_window->keyboard_interrupt_function = calculator_keyboard_int;
+        calculator_window->background_color = 0x0A0A0A;
         focused_window = calculator_window;
     } else {
         calculator_window->active = true;

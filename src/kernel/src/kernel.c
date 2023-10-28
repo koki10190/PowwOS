@@ -78,7 +78,11 @@ void kernel_main(Boot_Info *boot_info) {
     kernel_info = boot_info;
     uart_initialize();
     uart_puts("Initializing Kernel...");
+    uart_puts("\nRSDP: ");
+    uart_puts(to_hstring64((uint64_t)boot_info->rsdp));
     uart_puts("\n");
+
+    prepare_acpi();
 
     // paging and memory - start
     uint64_t mmap_entries = kernel_info->mmap_size / kernel_info->mmap_descriptor_size;

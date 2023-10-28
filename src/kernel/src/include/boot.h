@@ -10,6 +10,7 @@
 #define BOOT_H
 
 #include <stdint.h>
+#include <acpi/acpi.h>
 
 /**
  * @brief Memory region descriptor.
@@ -41,6 +42,7 @@ typedef struct s_boot_info {
     uint64_t mmap_size;
     uint64_t mmap_descriptor_size;
     Kernel_Boot_Video_Mode_Info video_mode_info;
+    RSDP2_T *rsdp;
 } Boot_Info;
 
 extern Boot_Info *kernel_info;

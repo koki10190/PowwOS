@@ -48,6 +48,7 @@ typedef struct s_boot_info {
     UINTN memory_map_size;
     UINTN memory_map_descriptor_size;
     Kernel_Boot_Video_Mode_Info video_mode_info;
+    void *rsdp;
 } Kernel_Boot_Info;
 
 /**

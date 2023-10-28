@@ -70,7 +70,7 @@ void bg_color_update() {
 
 void bg_color_init() {
     if (!bg_color_window) {
-        bg_color_window = &windows[window_init((vector2_t){15, 40}, (vector2_t){350, 260}, "Background Color", bg_color_update)];
+        bg_color_window = &windows[window_init((vector2_t){150, 150}, (vector2_t){350, 260}, "Background Color", bg_color_update)];
         bg_color_window->active = true;
         bg_color_window->background_color = 0x0A0A0A;
         focused_window = bg_color_window;

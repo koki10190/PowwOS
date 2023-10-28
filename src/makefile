@@ -25,6 +25,7 @@ DISK_IMG          := ${BUILD_DIR}/kernel.img
 DISK_IMG_SIZE     := 2880
 
 QEMU_FLAGS :=                                                \
+	-machine q35 \
 	-m 2G \
 	-bios OVMF.fd                                              \
 	-drive if=none,id=uas-disk1,file=${DISK_IMG},format=raw    \

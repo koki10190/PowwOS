@@ -19,7 +19,7 @@ void osaka_update() {
 
 void osaka_init() {
     if (!osaka_window) {
-        osaka_window = &windows[window_init((vector2_t){15, 40}, (vector2_t){126, 159 + 20}, "OMYGAAH", osaka_update)];
+        osaka_window = &windows[window_init((vector2_t){150, 150}, (vector2_t){126, 159 + 20}, "OMYGAAH", osaka_update)];
         osaka_window->active = true;
         osaka_window->background_color = 0x0A0A0A;
         focused_window = osaka_window;
