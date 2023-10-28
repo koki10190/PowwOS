@@ -12,9 +12,15 @@ void enumerate_function(uint64_t device_addr, uint64_t function) {
     if (pci_device_header->device_id == 0xFFFF)
         return;
 
-    uart_puts(to_hstring16(pci_device_header->vendor_id));
-    uart_puts(" ");
-    uart_puts(to_hstring16(pci_device_header->device_id));
+    uart_puts(get_vendor_name(pci_device_header->vendor_id));
+    uart_puts(" | ");
+    uart_puts(get_device_name(pci_device_header->vendor_id, pci_device_header->device_id));
+    uart_puts(" | ");
+    uart_puts(device_classes[pci_device_header->class]);
+    uart_puts(" | ");
+    uart_puts(get_subclass_name(pci_device_header->class, pci_device_header->subclass));
+    uart_puts(" | ");
+    uart_puts(get_prog_if_name(pci_device_header->class, pci_device_header->subclass, pci_device_header->prog_if));
     uart_puts("\n");
 }
 
