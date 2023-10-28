@@ -7,7 +7,7 @@
 # Features
 
 - Simple Window Manager (Still working on it)
-- Graphics Output Protocol for rendering
+- Graphics Output Protocol for rendering with triple buffering
 - GDT, IDT & IRQ
 - Panic State
 - Paging (Still working on it)
@@ -23,7 +23,22 @@
 - PCI
 - More to be decided
 
-## Resources
+## How to build
+
+### Dependencies:
+
+- GNU Make
+- GNU-EFI
+- x86_64 ELF Cross Compiler Toolchain in PATH
+- QEMU To Emulate the OS
+
+```
+git clone https://github.com/koki10190/PowwOS
+cd PowwOS
+./run
+```
+
+## Learning Resources
 
 - https://forum.osdev.org/index.php
 - https://github.com/lucianoforks/tetris-os
