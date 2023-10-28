@@ -1,0 +1,9 @@
+build
+*.EFI
+*.efi
+*.o
+*.so
+*.img
+*.swo
+*.swp
+*.iso
