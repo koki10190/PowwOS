@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <boot.h>
 #include <app/import_apps.h>
+#include <ramfs/fs.h>
+#include <uart.h>
 
 #define MATCH_BG_COLOR display_color == WHITE ? BLACK : WHITE
 
@@ -14,6 +16,8 @@ void render_shell_starter() {
     print(shell_name, shell_name_color);
     print(" ~ ", YELLOW);
 }
+
+char current_directory[500] = "/";
 
 void __os_string_to_color(uint32_t *color, char *buffer, bool bg_mode) {
     if (!strcmp(buffer, "blue")) {
@@ -104,6 +108,39 @@ void cmd_handler(char *buffer, bool terminal) {
             cursor_y = text_start_y;
             render_topbar();
         }
+    } else if (!strcmp(args[0], "pwd")) {
+        cmd_println("\r\n", WHITE, terminal);
+        cmd_println(current_directory, WHITE, terminal);
+    } else if (!strcmp(args[0], "cd")) {
+        if (args[0][0] != '/') {
+            strcat(current_directory, args[1]);
+        } else {
+            strcpy(current_directory, args[1]);
+        }
+    } else if (!strcmp(args[0], "touch")) {
+        ramfs_create(args[1], (uint8_t *)"");
+    } else if (!strcmp(args[0], "ls")) {
+        cmd_println("\r\n", WHITE, terminal);
+        for (int i = 0; i < MAX_RAMFS_FILES; i++) {
+            if (!ramfs.files[i].deleted) {
+                cmd_println(ramfs.files[i].path, WHITE, terminal);
+                cmd_println("\r\n", WHITE, terminal);
+            }
+        }
+    } else if (!strcmp(args[0], "cat")) {
+        cmd_println("\r\n", WHITE, terminal);
+        file_t *file = ramfs_open(args[1]);
+        if (file) {
+            cmd_println((char *)file->buffer, WHITE, terminal);
+            cmd_println("\r\n", WHITE, terminal);
+        } else {
+            cmd_println("Invalid File!", LIGHTRED, terminal);
+            cmd_println("\r\n", WHITE, terminal);
+        }
+    } else if (!strcmp(args[0], "write")) {
+        cmd_println("\r\n", WHITE, false);
+        file_t *file = ramfs_open(args[1]);
+        file->buffer = (uint8_t *)args[2];
     } else if (!strcmp(args[0], "time")) {
         poww_time *date;
         get_time(date);

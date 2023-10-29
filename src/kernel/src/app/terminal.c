@@ -105,41 +105,6 @@ void terminal_clear_screen() {
     current_char_buffer_size = 1;
 }
 bool terminal_skip_enter_nl = false;
-void terminal_cmd_handler(char *buffer) {
-    char args[32][32];
-    char *token;
-    char *rest = buffer;
-    int index = 0;
-
-    while ((token = strtok_r(rest, " ", &rest))) {
-        strcpy(args[index], token);
-        index++;
-    }
-
-    if (!strcmp(args[0], "clear")) {
-        terminal_clear_screen();
-        terminal_skip_enter_nl = true;
-    } else if (!strcmp(args[0], "time")) {
-        terminal_clear_screen();
-        poww_time *date;
-        get_time(date);
-        terminal_new_line();
-        terminal_print(__itoa(date->day), PINK);
-        terminal_print("/", PINK);
-        terminal_print(__itoa(date->month), PINK);
-        terminal_print("/", PINK);
-        terminal_print(__itoa(date->year), PINK);
-        terminal_print(" ", PINK);
-
-        terminal_print(__itoa(date->hour), PINK);
-        terminal_print(":", PINK);
-        terminal_println(__itoa(date->min), PINK);
-    } else {
-        terminal_new_line();
-        terminal_print("-> poww: Invalid Command!", LIGHTRED);
-        terminal_display_buffer[current_char_buffer_size - 1].starter = false;
-    }
-}
 
 void terminal_keyboard_int(uint8_t scancode) {
     char ascii = get_ascii_char(scancode, 0);
