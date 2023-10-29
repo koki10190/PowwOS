@@ -97,6 +97,58 @@ bool packet_ready = false;
 mouse_t mouse;
 vector2_t mouse_position_old;
 
+void read_mouse_movement() {
+    // mouse.movement.y
+    uint8_t mouse_packet_copy[4];
+    mouse_packet_copy[0] = mouse_packet[0];
+    mouse_packet_copy[1] = mouse_packet[1];
+    mouse_packet_copy[2] = mouse_packet[2];
+    mouse_packet_copy[3] = mouse_packet[3];
+    bool x_neg, y_neg, x_overflow, y_overflow;
+    if (mouse_packet[0] & PS2XSign)
+        x_neg = true;
+    else
+        x_neg = false;
+
+    if (mouse_packet[0] & PS2YSign)
+        y_neg = true;
+    else
+        y_neg = false;
+
+    if (mouse_packet[0] & PS2XOverflow)
+        x_overflow = true;
+    else
+        x_overflow = false;
+
+    if (mouse_packet[0] & PS2YOverflow)
+        y_overflow = true;
+    else
+        y_overflow = false;
+
+    if (!x_neg) {
+        mouse.movement.x = -mouse_packet_copy[1];
+        if (x_overflow)
+            mouse.movement.x = 255;
+    } else {
+        mouse_packet_copy[1] = 256 - mouse_packet_copy[1];
+        mouse.movement.x = -mouse_packet_copy[1];
+        if (x_overflow)
+            mouse.movement.x = -255;
+    }
+
+    if (!y_neg) {
+        mouse.movement.y = -mouse_packet_copy[2];
+        if (y_overflow)
+            mouse.movement.y = -255;
+    } else {
+        mouse_packet_copy[2] = 256 - mouse_packet_copy[2];
+        mouse.movement.y = mouse_packet_copy[2];
+        if (y_overflow) {
+            mouse.movement.y = 255;
+        }
+    }
+}
+
 void process_mouse_packet() {
     if (!packet_ready)
         return;
@@ -140,8 +192,10 @@ void process_mouse_packet() {
     } else {
         mouse_packet[2] = 256 - mouse_packet[2];
         mouse.position.y += mouse_packet[2];
-        if (y_overflow)
+        if (y_overflow) {
             mouse.position.y += 255;
+            mouse.movement.y = 255;
+        }
     }
 
     if (mouse.position.x < 0)

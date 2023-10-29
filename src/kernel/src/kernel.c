@@ -23,6 +23,7 @@
 #include <sprites.h>
 #include <app/import_apps.h>
 #include <pit/pit.h>
+#include <desktop/desktop.h>
 
 #define MATCH_BG_COLOR display_color == WHITE ? BLACK : WHITE
 
@@ -59,20 +60,61 @@ void test_window_update() {
 void test_window_keyboard(uint8_t scancode) {
 }
 
-void desktop_icons() {
-    render_calc_icon_sprite(15, 50, WHITE);
-    render_terminal_icon_sprite(60, 50, WHITE);
-    render_desktop_bg_sprite(60 + 45, 50, WHITE);
+vector2_t *desktop_icon_dragging = NULL;
+void desktop_icon_handler() {
+    for (int i = 0; i < desktop_icon_count; i++) {
+        desktop_icon_t *icon = &desktop_icons[i];
 
-    if (collision((vector2_t){15, 50}, (vector2_t){32, 32}, mouse.position, (vector2_t){5, 5}) && mouse.left_clicked) {
-        calculator_init();
+        if (icon->icon_render_function)
+            ((void (*)(int, int, uint32_t))icon->icon_render_function)(icon->position.x, icon->position.y, WHITE);
+
+        if (collision(icon->position, (vector2_t){32, 32}, mouse.position, (vector2_t){5, 5}) && mouse.left_clicked) {
+            if (icon->icon_render_function)
+                ((void (*)())icon->init_function)();
+        }
+        if (collision(icon->position, (vector2_t){32, 32}, mouse.position, (vector2_t){5, 5}) && mouse.right_clicked && desktop_icon_dragging == NULL) {
+            desktop_icon_dragging = &icon->position;
+        }
     }
-    if (collision((vector2_t){60, 50}, (vector2_t){32, 32}, mouse.position, (vector2_t){5, 5}) && mouse.left_clicked) {
-        terminal_init();
+
+    if (desktop_icon_dragging != NULL) {
+        desktop_icon_dragging->x = mouse.position.x;
+        desktop_icon_dragging->y = mouse.position.y;
     }
-    if (collision((vector2_t){60 + 45, 50}, (vector2_t){32, 32}, mouse.position, (vector2_t){5, 5}) && mouse.left_clicked) {
-        bg_color_init();
-    }
+
+    if (!mouse.right_clicked)
+        desktop_icon_dragging = NULL;
+
+    // render_calc_icon_sprite(15, 50, WHITE);
+    // render_terminal_icon_sprite(60, 50, WHITE);
+    // render_desktop_bg_sprite(60 + 45, 50, WHITE);
+
+    // if (collision((vector2_t){15, 50}, (vector2_t){32, 32}, mouse.position, (vector2_t){5, 5}) && mouse.left_clicked) {
+    //     calculator_init();
+    // }
+    // if (collision((vector2_t){60, 50}, (vector2_t){32, 32}, mouse.position, (vector2_t){5, 5}) && mouse.left_clicked) {
+    //     terminal_init();
+    // }
+    // if (collision((vector2_t){60 + 45, 50}, (vector2_t){32, 32}, mouse.position, (vector2_t){5, 5}) && mouse.left_clicked) {
+    //     bg_color_init();
+    // }
+}
+
+void create_desktop_icons() {
+    int icon_offset_increment = 45;
+    int icon_offset = 0;
+
+    // calculator
+    new_desktop_icon((vector2_t){15 + icon_offset, 50}, calculator_init, render_calc_icon_sprite);
+    icon_offset += icon_offset_increment;
+
+    // terminal
+    new_desktop_icon((vector2_t){15 + icon_offset, 50}, terminal_init, render_terminal_icon_sprite);
+    icon_offset += icon_offset_increment;
+
+    // background color selector
+    new_desktop_icon((vector2_t){15 + icon_offset, 50}, bg_color_init, render_desktop_bg_sprite);
+    icon_offset += icon_offset_increment;
 }
 
 void kernel_main(Boot_Info *boot_info) {
@@ -150,6 +192,7 @@ void kernel_main(Boot_Info *boot_info) {
     // setup render
 
     render_background(display_color);
+    create_desktop_icons();
     // print(shell_name, shell_name_color);
     // print(" ~ ", YELLOW);
 
@@ -159,7 +202,7 @@ void kernel_main(Boot_Info *boot_info) {
         // print(buffer, MATCH_BG_COLOR)
 
         swap_buffers();
-        desktop_icons();
+        desktop_icon_handler();
 
         window_manager_handler();
         render_topbar();

@@ -147,7 +147,7 @@ void window_manager_handler() {
             currently_dragging = &windows[i].position;
         }
 
-        if (collision(position, scale_window, mouse.position, (vector2_t){5, 5}) && mouse.left_clicked) {
+        if (collision(position, scale_window, mouse.position, (vector2_t){5, 5}) && mouse.left_clicked && currently_dragging == NULL) {
             focused_window = &windows[i];
             foucsed_loop_window = focused_window;
         }
@@ -169,6 +169,7 @@ void window_manager_handler() {
 void render_window(window_t *window) {
     int width = window->size.x;
     int height = window->size.y;
+    uint32_t title_bar_color = display_color == WHITE ? (window->title_bar_color == WHITE ? BLACK : window->title_bar_color) : window->title_bar_color;
 
     // window itself
     for (int xx = 0; xx < width; xx++) {
@@ -189,14 +190,14 @@ void render_window(window_t *window) {
         for (int yy = 0; yy < tb_height; yy++) {
             if (yy + window->position.y > kernel_info->video_mode_info.vertical_resolution - 1)
                 continue;
-            plot_pixel_buffer(xx + window->position.x, yy + window->position.y, window->title_bar_color, back_buffer);
+            plot_pixel_buffer(xx + window->position.x, yy + window->position.y, title_bar_color, back_buffer);
         }
     }
 
     int tb_center_x = (width / 2) - ((__strlen(window->title) * 8) / 2);
     int tb_center_y = (tb_height / 2) - (8 / 2);
 
-    render_text_bb(window->title, window->position.x + tb_center_x, window->position.y + tb_center_y, 0xffffff - window->title_bar_color);
+    render_text_bb(window->title, window->position.x + tb_center_x, window->position.y + tb_center_y, 0xffffff - title_bar_color);
     // title bar
 
     // close button
@@ -205,7 +206,7 @@ void render_window(window_t *window) {
         (vector2_t){window->position.x + window->size.x - 20, window->position.y + ((tb_height / 2) - (16 / 2))}, (vector2_t){16, 16},
         mouse.position, (vector2_t){5, 5});
 
-    render_x_sprite(window->position.x + window->size.x - 20, window->position.y + ((tb_height / 2) - (16 / 2)), close_collision_check ? RED : BLACK);
+    render_x_sprite(window->position.x + window->size.x - 20, window->position.y + ((tb_height / 2) - (16 / 2)), close_collision_check ? RED : 0xffffff - title_bar_color);
 
     if (close_collision_check && mouse.left_clicked) {
         window->active = false;
@@ -233,7 +234,8 @@ void button_events(window_t *window, button_t *button) {
     if (collision((vector2_t){
                       .x = window->position.x + button->position.x,
                       .y = window->position.y + tb_height + button->position.y},
-                  (vector2_t){.x = button->size.x, .y = button->size.y}, (vector2_t){.x = mouse.position.x, .y = mouse.position.y}, (vector2_t){.x = 16, .y = 16})) {
+                  (vector2_t){.x = button->size.x, .y = button->size.y}, (vector2_t){.x = mouse.position.x, .y = mouse.position.y}, (vector2_t){.x = 16, .y = 16}) &&
+        focused_window == window) {
         // hover
         if (button->on_hover != NULL)
             ((void (*)())button->on_hover)();
