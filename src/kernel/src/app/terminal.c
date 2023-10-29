@@ -162,6 +162,7 @@ void terminal_update() {
     }
 }
 
+static char *name = "Terminal";
 void terminal_init() {
     static bool called_once;
     terminal_display_buffer[0].starter = true;
@@ -171,7 +172,7 @@ void terminal_init() {
     }
 
     if (!terminal_window) {
-        terminal_window = &windows[window_init((vector2_t){150, 150}, (vector2_t){500, 400}, "Terminal", terminal_update)];
+        terminal_window = &windows[window_init((vector2_t){150, 150}, (vector2_t){500, 400}, name, terminal_update)];
         terminal_window->active = true;
         terminal_window->background_color = 0x0A0A0A;
         terminal_window->keyboard_interrupt_function = terminal_keyboard_int;
