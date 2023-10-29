@@ -9,5 +9,6 @@ void render_terminal_icon_sprite(int x, int y, uint32_t color);
 void render_osaka_icon_sprite(int x, int y, uint32_t color);
 void render_desktop_bg_sprite(int x, int y, uint32_t color);
 void render_undefined_sprite(int x, int y, uint32_t *bitmap, int width, int height);
+void render_file_editor_sprite(int x, int y, uint32_t color);
 
 #endif

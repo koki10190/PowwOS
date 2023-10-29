@@ -116,6 +116,10 @@ void create_desktop_icons() {
     // background color selector
     new_desktop_icon((vector2_t){15 + icon_offset, 50}, bg_color_init, render_desktop_bg_sprite);
     icon_offset += icon_offset_increment;
+
+    // file editor selector
+    new_desktop_icon((vector2_t){15 + icon_offset, 50}, file_editor_init, render_file_editor_sprite);
+    icon_offset += icon_offset_increment;
 }
 
 void kernel_main(Boot_Info *boot_info) {

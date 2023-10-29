@@ -61,4 +61,11 @@ cd PowwOS
 
 ---
 
+# HOW TO USE CERTAIN APPS
+
+## File Editor
+
+- END To write to file
+- ESC To close without writing to file
+
 This is a remake of an UEFI Application test I made!

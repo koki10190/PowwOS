@@ -2,6 +2,8 @@
 #include <string.h>
 #include <panic/panic.h>
 #include <graphics/graphics.h>
+#include <uart.h>
+#include <memory.h>
 
 fs_t ramfs;
 
@@ -25,26 +27,18 @@ file_t *ramfs_open(const char *path) {
 
 file_t *ramfs_create(char *path, uint8_t *buffer) {
     file_t file;
-    file.buffer = buffer;
-    file.path = path;
+    file.buffer = (uint8_t *)"";
+    strcpy(file.path, path);
     file.deleted = false;
 
-    for (int i = 0; i < MAX_RAMFS_FILES; i++) {
-        if (ramfs.files[i].deleted) {
-            if (ramfs.file_length > MAX_RAMFS_FILES)
-                return NULL;
-
-            ramfs.files[i] = file;
-            ramfs.file_length++;
-            return &ramfs.files[i];
-        }
-    }
+    ramfs.files[ramfs.file_length++] = file;
+    return &ramfs.files[ramfs.file_length - 1];
 }
 
 void ramfs_delete(char *path) {
     file_t *file = ramfs_open(path);
     file->deleted = true;
     file->buffer = NULL;
-    file->path = NULL;
+    __memset(file->path, '\0', 128);
     ramfs.file_length--;
 }

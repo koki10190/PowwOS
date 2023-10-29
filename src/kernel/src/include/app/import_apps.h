@@ -5,5 +5,6 @@
 #include "terminal.h"
 #include "osaka.h"
 #include "bg_color.h"
+#include "file_editor.h"
 
 #endif

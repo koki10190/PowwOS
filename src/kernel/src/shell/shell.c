@@ -87,12 +87,6 @@ void cmd_println(char *buffer, uint32_t color, bool terminal) {
         println(buffer, color);
 }
 
-char *concat_path(char *arg) {
-    char *dst = "/";
-    strcat(dst, arg);
-    return dst;
-}
-
 void cmd_handler(char *buffer, bool terminal) {
     char args[32][32];
     char *token;
@@ -115,7 +109,7 @@ void cmd_handler(char *buffer, bool terminal) {
             render_topbar();
         }
     } else if (!strcmp(args[0], "touch")) {
-        char *path = concat_path(args[1]);
+        char *path = args[1];
         ramfs_create(path, (uint8_t *)"");
     } else if (!strcmp(args[0], "ls")) {
         cmd_println("\r\n", WHITE, terminal);
@@ -123,10 +117,12 @@ void cmd_handler(char *buffer, bool terminal) {
             if (!ramfs.files[i].deleted) {
                 cmd_println(ramfs.files[i].path, WHITE, terminal);
                 cmd_println("\r\n", WHITE, terminal);
+                uart_puts(ramfs.files[i].path);
+                uart_puts("\n");
             }
         }
     } else if (!strcmp(args[0], "cat")) {
-        char *path = concat_path(args[1]);
+        char *path = args[1];
         cmd_println("\r\n", WHITE, terminal);
         file_t *file = ramfs_open(path);
         if (file) {
@@ -137,10 +133,10 @@ void cmd_handler(char *buffer, bool terminal) {
             cmd_println("\r\n", WHITE, terminal);
         }
     } else if (!strcmp(args[0], "write")) {
-        char *path = concat_path(args[1]);
+        char *path = args[1];
         cmd_println("\r\n", WHITE, false);
         file_t *file = ramfs_open(path);
-        file->buffer = (uint8_t *)args[2];
+        file->buffer = args[2];
     } else if (!strcmp(args[0], "time")) {
         poww_time *date;
         get_time(date);

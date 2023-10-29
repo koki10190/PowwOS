@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 typedef struct _file_t {
-    char *path;
+    char path[128];
     uint8_t *buffer;
     bool deleted;
 } file_t;
