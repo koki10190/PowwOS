@@ -34,7 +34,7 @@ void pt_manager_map_memory(pt_manager *this, void *virtual_memory, void *physica
         pde.address = (uint64_t)pd >> 12;
         pde.present = true;
         pde.read_write = true;
-        pdp->entries[indexer.pdp_i] = pde;
+        pdp->entries[indexer.pd_i] = pde;
     } else {
         pd = (page_table_t *)((uint64_t)pde.address << 12);
     }
@@ -47,7 +47,7 @@ void pt_manager_map_memory(pt_manager *this, void *virtual_memory, void *physica
         pde.address = (uint64_t)pt >> 12;
         pde.present = true;
         pde.read_write = true;
-        pd->entries[indexer.pdp_i] = pde;
+        pd->entries[indexer.pt_i] = pde;
     } else {
         pt = (page_table_t *)((uint64_t)pde.address << 12);
     }

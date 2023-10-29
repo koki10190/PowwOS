@@ -86,38 +86,6 @@ void kernel_main(Boot_Info *boot_info) {
     prepare_acpi();
 
     // paging and memory - start
-    uint64_t mmap_entries = kernel_info->mmap_size / kernel_info->mmap_descriptor_size;
-    pg_alloc_read_memory_map(&global_allocator, kernel_info->memory_map, kernel_info->mmap_size, kernel_info->mmap_descriptor_size);
-
-    uint64_t kernel_size = (uint64_t)&kernel_end - (uint64_t)&kernel_start;
-    uint64_t kernel_pages = (uint64_t)kernel_size / 4096 + 1;
-    pg_alloc_lock_pages(&global_allocator, &kernel_start, kernel_pages);
-
-    // page_table_t *pml4 = (page_table_t *)pg_alloc_request_page(&global_allocator);
-    // m_memset(pml4, 0, 0x1000);
-
-    // pt_manager page_table_manager;
-    // pt_manager_construct(&page_table_manager, pml4);
-
-    // uint64_t memsize = get_memory_size(kernel_info->memory_map, mmap_entries, kernel_info->mmap_descriptor_size);
-    // uart_puts(__itoa(memsize));
-
-    // for (uint64_t t = 0; t < memsize; t += 0x1000) {
-    //     // uart_puts(__itoa(t));
-    //     // uart_puts("\n");
-    //     if (t < 131727360)
-    //         pt_manager_map_memory(&page_table_manager, (void *)t, (void *)t);
-    // }
-    // uint64_t framebuffer_base = (uint64_t)kernel_info->video_mode_info.framebuffer_pointer;
-    // uint64_t framebuffer_size = (uint64_t)kernel_info->video_mode_info.framebuffer_size + 0x1000;
-    // pg_alloc_lock_pages(&global_allocator, (void *)framebuffer_base, framebuffer_size / 0x1000);
-
-    // for (uint64_t t = framebuffer_base; t < framebuffer_base + framebuffer_size; t += 4096) {
-    //     pt_manager_map_memory(&page_table_manager, (void *)t, (void *)t);
-    // }
-    // asm("mov %0, %%cr3"
-    //     :
-    //     : "r"(pml4));
 
     // paging and memory - end
 
@@ -135,6 +103,43 @@ void kernel_main(Boot_Info *boot_info) {
 
     graphics_init();
     set_divisor(65535); // pit
+
+    uint64_t mmap_entries = kernel_info->mmap_size / kernel_info->mmap_descriptor_size;
+    pg_alloc_read_memory_map(&global_allocator, kernel_info->memory_map, kernel_info->mmap_size, kernel_info->mmap_descriptor_size);
+
+    // uint64_t kernel_size = (uint64_t)&kernel_end - (uint64_t)&kernel_start;
+    // uint64_t kernel_pages = (uint64_t)kernel_size / 4096 + 1;
+    // pg_alloc_lock_pages(&global_allocator, &kernel_start, kernel_pages);
+
+    // page_table_t *pml4 = (page_table_t *)pg_alloc_request_page(&global_allocator);
+    // m_memset(pml4, 0, 0x1000);
+
+    // pt_manager page_table_manager;
+    // pt_manager_construct(&page_table_manager, pml4);
+
+    // uint64_t memsize = get_memory_size(kernel_info->memory_map, mmap_entries, kernel_info->mmap_descriptor_size);
+    // // uart_puts(__itoa(memsize));
+
+    // for (uint64_t t = 0; t < get_memory_size(kernel_info->memory_map, mmap_entries, kernel_info->mmap_descriptor_size); t += 0x1000) {
+    //     uart_puts(__itoa(t));
+    //     uart_puts("\n");
+
+    //     if (t >= 1073741824)
+    //         break;
+    //     pt_manager_map_memory(&page_table_manager, (void *)t, (void *)t);
+    // }
+    uint64_t framebuffer_base = (uint64_t)kernel_info->video_mode_info.framebuffer_pointer;
+    uint64_t framebuffer_size = (uint64_t)kernel_info->video_mode_info.framebuffer_size + 0x1000;
+    pg_alloc_lock_pages(&global_allocator, (void *)framebuffer_base, framebuffer_size / 0x1000);
+
+    // for (uint64_t t = framebuffer_base; t < framebuffer_base + framebuffer_size; t += 4096) {
+    //     uart_puts(to_hstring64(t));
+    //     uart_puts("\n");
+    //     pt_manager_map_memory(&page_table_manager, (void *)t, (void *)t);
+    // }
+    // asm("mov %0, %%cr3"
+    //     :
+    //     : "r"(pml4));
 
     char keycode,
         ch = -1;
