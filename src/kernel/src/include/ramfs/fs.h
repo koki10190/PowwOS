@@ -9,7 +9,7 @@ typedef struct _file_t {
     uint8_t *buffer;
     bool deleted;
 } file_t;
-#define MAX_RAMFS_FILES 256
+#define MAX_RAMFS_FILES 500
 typedef struct __fs_t {
     file_t files[MAX_RAMFS_FILES];
     int file_length;

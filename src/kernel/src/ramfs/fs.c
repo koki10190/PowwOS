@@ -48,22 +48,3 @@ void ramfs_delete(char *path) {
     file->path = NULL;
     ramfs.file_length--;
 }
-
-void create_file(char *path, uint8_t *buffer) {
-    char split_path[32][32];
-    char *token;
-    char *rest = path;
-    int index = 0;
-
-    while ((token = strtok_r(rest, "/", &rest))) {
-        strcpy(split_path[index], token);
-        index++;
-    }
-
-    for (int __i = 0; __i < index; __i++) {
-        char *path = split_path[__i];
-
-        for (int i = 0; i < MAX_RAMFS_FILES; i++) {
-        }
-    }
-}
