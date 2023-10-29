@@ -30,4 +30,11 @@ extern vector2_t mouse_position_old;
 
 void read_mouse_movement();
 
+typedef enum {
+    LEFT_BTN,
+    RIGHT_BTN,
+    MIDDLE_BTN
+} mouse_button_t;
+bool get_mouse_down_once(mouse_button_t button);
+
 #endif

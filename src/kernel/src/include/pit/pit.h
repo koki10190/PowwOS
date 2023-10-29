@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 extern double time_since_boot;
-extern uint64_t base_frequency;
+extern const uint64_t base_frequency;
 
 void sleepd(double seconds);
 void sleep(uint64_t miliseconds);

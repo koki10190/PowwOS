@@ -24,6 +24,7 @@
 #include <app/import_apps.h>
 #include <pit/pit.h>
 #include <desktop/desktop.h>
+#include <ramfs/fs.h>
 
 #define MATCH_BG_COLOR display_color == WHITE ? BLACK : WHITE
 
@@ -139,9 +140,9 @@ void kernel_main(Boot_Info *boot_info) {
 
     prepare_interrupts();
     init_mouse();
-    outb(PIC1_DATA, 0b11111001);
-    outb(PIC2_DATA, 0b11101111);
-    STI();
+    // outb(PIC1_DATA, 0b11111001);
+    // outb(PIC2_DATA, 0b11101111);
+    // STI();
 
     graphics_init();
     set_divisor(65535); // pit
@@ -196,8 +197,10 @@ void kernel_main(Boot_Info *boot_info) {
     // print(shell_name, shell_name_color);
     // print(" ~ ", YELLOW);
 
-    while (1) {
+    init_ramfs();
 
+    int tick;
+    while (1) {
         process_mouse_packet();
         // print(buffer, MATCH_BG_COLOR)
 

@@ -265,3 +265,32 @@ void mouse_handle(uint8_t data) {
         break;
     }
 }
+
+bool get_mouse_down_once(mouse_button_t button) {
+    static bool left_clicked, right_clicked, middle_clicked;
+
+    switch (button) {
+    case LEFT_BTN: {
+        if (mouse.left_clicked && !left_clicked) {
+            left_clicked = true;
+            return true;
+        } else if (!mouse.left_clicked)
+            left_clicked = false;
+        return false;
+    }
+    case RIGHT_BTN:
+        if (mouse.right_clicked && !right_clicked) {
+            right_clicked = true;
+            return true;
+        } else if (!mouse.right_clicked)
+            right_clicked = false;
+        return false;
+    case MIDDLE_BTN:
+        if (mouse.middle_clicked && !middle_clicked) {
+            middle_clicked = true;
+            return true;
+        } else if (!mouse.middle_clicked)
+            middle_clicked = false;
+        return false;
+    }
+}
