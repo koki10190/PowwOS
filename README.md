@@ -58,7 +58,6 @@ cd PowwOS
 - Window Collision Function (window pointer and rect to calculate the positions instantly without manually adding)
 - RAM Filesystem for testing and fun (basically volatile filesystem) then try to implement an actual filesystem!
 - Someway for users to program custom applications (a simple programming language basically) that is runnable
-- maybe somehow make it multitask, since currently it definetley going to be single-tasked kernel if the application uses a while loop or infinite for loop
 
 ---
 
