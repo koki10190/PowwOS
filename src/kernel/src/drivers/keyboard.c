@@ -11,7 +11,6 @@ char get_input_keycode() {
 }
 
 char get_ascii_char(char keycode, int uppercase) {
-    uart_puts(shift_pressed ? "true" : "false");
     switch (keycode) {
     case 0x1e:
         return shift_pressed == 0 ? 'a' : 'A';
