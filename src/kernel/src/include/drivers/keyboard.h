@@ -2,6 +2,7 @@
 #define KEYBOARD_H
 
 #include <port_io.h>
+#include <stdbool.h>
 
 #define KEYBOARD_PORT 0x60
 
@@ -89,6 +90,8 @@ typedef enum {
     RELEASED_OFFSET = 128
 } os_keycode;
 
+extern bool shift_pressed;
 char get_ascii_char(char keycode, int uppercase);
+bool scan_keycode(os_keycode keycode);
 
 #endif

@@ -65,9 +65,14 @@ __attribute__((interrupt)) void keyboard_int_handler(struct interrupt_frame_t *f
     uint8_t scan_code = inb(0x60);
     char ascii = get_ascii_char(scan_code, 0);
 
-    bool shift_pressed = false;
     static char buffer[128] = "";
     static int buffer_index = 0;
+
+    if (scan_code == KEY_LEFT_SHIFT) {
+        shift_pressed = true;
+    } else if (scan_code == KEY_LEFT_SHIFT + RELEASED_OFFSET) {
+        shift_pressed = false;
+    }
 
     if (focused_window == NULL) {
         // switch (scan_code) {

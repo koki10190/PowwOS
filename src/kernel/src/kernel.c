@@ -186,7 +186,7 @@ void kernel_main(Boot_Info *boot_info) {
 
     char keycode,
         ch = -1;
-    bool shift_pressed = false;
+
     char buffer[128] = "";
     int buffer_index = 0;
 

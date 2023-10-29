@@ -87,6 +87,12 @@ void cmd_println(char *buffer, uint32_t color, bool terminal) {
         println(buffer, color);
 }
 
+char *concat_path(char *arg) {
+    char *dst = "/";
+    strcat(dst, arg);
+    return dst;
+}
+
 void cmd_handler(char *buffer, bool terminal) {
     char args[32][32];
     char *token;
@@ -108,17 +114,9 @@ void cmd_handler(char *buffer, bool terminal) {
             cursor_y = text_start_y;
             render_topbar();
         }
-    } else if (!strcmp(args[0], "pwd")) {
-        cmd_println("\r\n", WHITE, terminal);
-        cmd_println(current_directory, WHITE, terminal);
-    } else if (!strcmp(args[0], "cd")) {
-        if (args[0][0] != '/') {
-            strcat(current_directory, args[1]);
-        } else {
-            strcpy(current_directory, args[1]);
-        }
     } else if (!strcmp(args[0], "touch")) {
-        ramfs_create(args[1], (uint8_t *)"");
+        char *path = concat_path(args[1]);
+        ramfs_create(path, (uint8_t *)"");
     } else if (!strcmp(args[0], "ls")) {
         cmd_println("\r\n", WHITE, terminal);
         for (int i = 0; i < MAX_RAMFS_FILES; i++) {
@@ -128,8 +126,9 @@ void cmd_handler(char *buffer, bool terminal) {
             }
         }
     } else if (!strcmp(args[0], "cat")) {
+        char *path = concat_path(args[1]);
         cmd_println("\r\n", WHITE, terminal);
-        file_t *file = ramfs_open(args[1]);
+        file_t *file = ramfs_open(path);
         if (file) {
             cmd_println((char *)file->buffer, WHITE, terminal);
             cmd_println("\r\n", WHITE, terminal);
@@ -138,8 +137,9 @@ void cmd_handler(char *buffer, bool terminal) {
             cmd_println("\r\n", WHITE, terminal);
         }
     } else if (!strcmp(args[0], "write")) {
+        char *path = concat_path(args[1]);
         cmd_println("\r\n", WHITE, false);
-        file_t *file = ramfs_open(args[1]);
+        file_t *file = ramfs_open(path);
         file->buffer = (uint8_t *)args[2];
     } else if (!strcmp(args[0], "time")) {
         poww_time *date;
