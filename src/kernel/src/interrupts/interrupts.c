@@ -11,6 +11,8 @@
 #include <string.h>
 #include <drivers/mouse.h>
 #include <display/window.h>
+#include <pit/pit.h>
+
 #define MATCH_BG_COLOR display_color == WHITE ? BLACK : WHITE
 
 __attribute__((interrupt)) void division_error_fault_handler(struct interrupt_frame_t *frame) {
@@ -117,6 +119,11 @@ __attribute__((interrupt)) void mouse_int_handler(struct interrupt_frame_t *fram
     mouse_handle(mouse_data);
 
     pic_endslave();
+}
+
+__attribute__((interrupt)) void pit_int_handler(struct interrupt_frame_t *frame) {
+    tick();
+    pic_endmaster();
 }
 
 void pic_endmaster() {

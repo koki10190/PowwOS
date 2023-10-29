@@ -39,13 +39,13 @@ void prepare_interrupts() {
     set_idt_gate((void *)gpfault_handler, 0xD, IDT_TA_INTERRUPT_GATE, 0x08);
     set_idt_gate((void *)keyboard_int_handler, 0x21, IDT_TA_INTERRUPT_GATE, 0x08);
     set_idt_gate((void *)mouse_int_handler, 0x2C, IDT_TA_INTERRUPT_GATE, 0x08);
+    set_idt_gate((void *)pit_int_handler, 0x20, IDT_TA_INTERRUPT_GATE, 0x08);
 
     asm("lidt %0"
         :
         : "m"(idtr));
     remap_pic();
-    outb(PIC1_DATA, 0b11111101);
-    outb(PIC2_DATA, 0b11111111);
-
+    outb(PIC1_DATA, 0b11111000);
+    outb(PIC2_DATA, 0b11101111);
     asm("sti");
 }

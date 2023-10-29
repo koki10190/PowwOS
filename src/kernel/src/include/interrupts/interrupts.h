@@ -24,6 +24,7 @@ __attribute__((interrupt)) void gpfault_handler(struct interrupt_frame_t *frame)
 // USB Devices
 __attribute__((interrupt)) void keyboard_int_handler(struct interrupt_frame_t *frame);
 __attribute__((interrupt)) void mouse_int_handler(struct interrupt_frame_t *frame);
+__attribute__((interrupt)) void pit_int_handler(struct interrupt_frame_t *frame);
 
 void remap_pic();
 void pic_endmaster();

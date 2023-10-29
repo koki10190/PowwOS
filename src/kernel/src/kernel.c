@@ -22,6 +22,7 @@
 #include <interrupts/interrupts.h>
 #include <sprites.h>
 #include <app/import_apps.h>
+#include <pit/pit.h>
 
 #define MATCH_BG_COLOR display_color == WHITE ? BLACK : WHITE
 
@@ -133,6 +134,7 @@ void kernel_main(Boot_Info *boot_info) {
     STI();
 
     graphics_init();
+    set_divisor(65535); // pit
 
     char keycode,
         ch = -1;
@@ -147,6 +149,7 @@ void kernel_main(Boot_Info *boot_info) {
     // print(" ~ ", YELLOW);
 
     while (1) {
+
         process_mouse_packet();
         // print(buffer, MATCH_BG_COLOR)
 
