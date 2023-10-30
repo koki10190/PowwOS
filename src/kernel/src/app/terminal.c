@@ -153,7 +153,7 @@ void terminal_update() {
         int overall_len = name_len + 3;
         if (terminal_display_buffer[i].starter) {
             window_render_text_margin(terminal_window, shell_name, 0, cursor_y, shell_name_color, margin_x, margin_y);
-            // window_render_text_margin(terminal_window, " ~ ", name_len * 8, cursor_y, YELLOW, margin_x, margin_y);
+            window_render_text_margin(terminal_window, " ~ ", name_len * 8, cursor_y, YELLOW, margin_x, margin_y);
             window_render_text_margin(terminal_window, buffer, overall_len * 8, cursor_y, terminal_display_buffer[i].color, margin_x, margin_y);
         } else {
             window_render_text_margin(terminal_window, buffer, 0, cursor_y, terminal_display_buffer[i].color, margin_x, margin_y);

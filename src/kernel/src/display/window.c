@@ -11,7 +11,7 @@ vector2_t *currently_dragging;
 window_t *focused_window;
 
 uint32_t window_buffer[500 * 500];
-static int tb_height = 20;
+int tb_height = 20;
 
 void window_render_char(window_t *window, char c, int x, int y, uint32_t color) {
     const uint8_t *glyph = bitmap_1[(size_t)c];

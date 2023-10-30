@@ -68,4 +68,21 @@ cd PowwOS
 - END To write to file
 - ESC To close without writing to file
 
+## Paint
+
+- Press 1 to change color to BLUE
+- Press 1 to change color to BLUE
+- Press 2 to change color to LIGHTBLUE
+- Press 3 to change color to GREEN
+- Press 4 to change color to LIGHTGREEN
+- Press 5 to change color to RED
+- Press 6 to change color to LIGHTRED
+- Press 7 to change color to MAGENTA
+- Press 8 to change color to PINK
+- Press 9 to change color to LIGHTGRAY
+- Press 0 to change color to DARKGRAY
+- Press MINUS to change color to WHITE
+- Press EQUAL to change color to BLACK
+- Press DELETE to clear
+
 This is a remake of an UEFI Application test I made!

@@ -32,6 +32,7 @@ extern window_t windows[128];
 extern int window_count;
 extern vector2_t *currently_dragging;
 extern window_t *focused_window;
+extern int tb_height;
 
 int window_init(vector2_t position, vector2_t size, char *title, void *update_function);
 void window_close(window_t *window);

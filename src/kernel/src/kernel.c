@@ -120,6 +120,9 @@ void create_desktop_icons() {
     // file editor selector
     new_desktop_icon((vector2_t){15 + icon_offset, 50}, file_editor_init, render_file_editor_sprite);
     icon_offset += icon_offset_increment;
+
+    new_desktop_icon((vector2_t){15 + icon_offset, 50}, paint_init, render_paint_sprite);
+    icon_offset += icon_offset_increment;
 }
 
 void kernel_main(Boot_Info *boot_info) {
