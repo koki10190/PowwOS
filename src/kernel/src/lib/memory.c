@@ -117,6 +117,12 @@ nalloc:;
             return ret;*/
 }
 
+void __free(void *mem) {
+    alloc_t *alloc = (mem - sizeof(alloc_t));
+    memory_used -= alloc->size + sizeof(alloc_t);
+    alloc->status = 0;
+}
+
 void *__memcpy(void *dest, const void *src, size_t n) {
     uint32_t num_dwords = n / 4;
     uint32_t num_bytes = n % 4;

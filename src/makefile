@@ -29,6 +29,7 @@ QEMU_FLAGS :=                                                \
 	-m 2G \
 	-bios OVMF.fd                                              \
 	-drive if=none,id=uas-disk1,file=${DISK_IMG},format=raw    \
+	-drive if=none,id=uas-disk2,file=../iso/blank.img,format=raw    \
 	-device usb-storage,drive=uas-disk1                        \
 	-serial stdio                                              \
 	-usb                                                       \

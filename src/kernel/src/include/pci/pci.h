@@ -19,6 +19,28 @@ typedef struct __pci_device_header_t {
     uint8_t bist;
 } pci_device_header_t;
 
+typedef struct __pci_header0_t {
+    pci_device_header_t header;
+    uint32_t BAR0;
+    uint32_t BAR1;
+    uint32_t BAR2;
+    uint32_t BAR3;
+    uint32_t BAR4;
+    uint32_t BAR5;
+    uint32_t card_bus_cis_ptr;
+    uint16_t subsys_vendor_id;
+    uint16_t subsys_id;
+    uint32_t expansion_rom_base_addr;
+    uint8_t capabilities_ptr;
+    uint8_t rsv0;
+    uint16_t rsv1;
+    uint32_t rsv2;
+    uint8_t interrupt_line;
+    uint8_t interrupt_pin;
+    uint8_t min_grant;
+    uint8_t max_latency;
+} pci_header0_t;
+
 extern const char *device_classes[];
 
 void enumerate_pci(mcfg_header_t *mcfg);

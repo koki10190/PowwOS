@@ -281,6 +281,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
         debug_print_line(L"Error: Failed to open the graphics output protocol on "
                          L"the active console output device: %s\n",
                          get_efi_error_message(status));
+        return status;
     }
 
     // If we were able to obtain a protocol on the current output device handle
@@ -328,17 +329,37 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
     debug_print_line(L"Debug: Set Kernel Entry Point to: '0x%llx'\n",
                      *kernel_entry_point);
 #endif
-
+#ifdef DEBUG
+    debug_print_line(L"Debug 1: Setting framebuffer\n");
+#endif
     boot_info.video_mode_info.framebuffer_pointer =
         (VOID *)graphics_output_protocol->Mode->FrameBufferBase;
     boot_info.video_mode_info.framebuffer_size = graphics_output_protocol->Mode->FrameBufferSize;
+#ifdef DEBUG
+    debug_print_line(L"Debug 1: Setting framebuffer size\n");
+#endif
     boot_info.video_mode_info.pixel_buffer = pixel_buffer;
+#ifdef DEBUG
+    debug_print_line(L"Debug 1: Setting pixel buffer\n");
+#endif
     boot_info.video_mode_info.horizontal_resolution =
         graphics_output_protocol->Mode->Info->HorizontalResolution;
+#ifdef DEBUG
+    debug_print_line(L"Debug 1: Setting res1\n");
+#endif
     boot_info.video_mode_info.vertical_resolution =
         graphics_output_protocol->Mode->Info->VerticalResolution;
+#ifdef DEBUG
+    debug_print_line(L"Debug 1: Setting res2\n");
+#endif
     boot_info.video_mode_info.pixels_per_scaline =
         graphics_output_protocol->Mode->Info->PixelsPerScanLine;
+#ifdef DEBUG
+    debug_print_line(L"Debug 1: Setting ppsl\n");
+#endif
+#ifdef DEBUG
+    debug_print_line(L"Debug 1: Setted Boot Info\n");
+#endif
 
     EFI_CONFIGURATION_TABLE *config_table = SystemTable->ConfigurationTable;
     void *rsdp = NULL;
@@ -353,6 +374,9 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
         config_table++;
     }
     boot_info.rsdp = rsdp;
+#ifdef DEBUG
+    debug_print_line(L"Debug 1: Setted RSDP\n");
+#endif
 
 #ifdef DEBUG
     debug_print_line(L"Debug: Closing Graphics Output Service handles\n");
@@ -360,11 +384,19 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 
     status = close_graphic_output_service();
     if (check_for_fatal_error(status, L"Error closing Graphics Output service")) {
+#ifdef DEBUG
+        debug_print_line(L"Debug: CLOSING GOP FAIL\n");
+#endif
+
         return status;
     }
 
 #ifdef DEBUG
     debug_print_line(L"Debug: Getting memory map and exiting boot services\n");
+#endif
+
+#ifdef DEBUG
+    debug_print_line(L"Debug: Calling Kernel...\n");
 #endif
 
     // Get the memory map prior to exiting the boot service.

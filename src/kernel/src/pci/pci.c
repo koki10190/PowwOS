@@ -1,6 +1,8 @@
 #include <pci/pci.h>
 #include <uart.h>
 #include <string.h>
+#include <ahci/ahci.h>
+#include <memory.h>
 
 void enumerate_function(uint64_t device_addr, uint64_t function) {
     uint64_t offset = function << 12;
@@ -22,6 +24,19 @@ void enumerate_function(uint64_t device_addr, uint64_t function) {
     uart_puts(" | ");
     uart_puts(get_prog_if_name(pci_device_header->class, pci_device_header->subclass, pci_device_header->prog_if));
     uart_puts("\n");
+
+    switch (pci_device_header->class) {
+    case 0x01:
+        switch (pci_device_header->subclass) {
+        case 0x06:
+            switch (pci_device_header->prog_if) {
+            case 0x01: {
+                ahci_driver_t *ahci_driver = (void *)__malloc(sizeof(ahci_driver_t));
+                ahci_driver_init(ahci_driver, pci_device_header);
+            }
+            }
+        }
+    }
 }
 
 void enumerate_device(uint64_t bus_addr, uint64_t device) {

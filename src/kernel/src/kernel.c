@@ -191,6 +191,8 @@ void kernel_main(Boot_Info *boot_info) {
     //     :
     //     : "r"(pml4));
 
+    // init_heap((void *)0x0000100000000000, 0x10);
+
     char keycode,
         ch = -1;
 

@@ -8,6 +8,7 @@
 #include <app/import_apps.h>
 #include <ramfs/fs.h>
 #include <uart.h>
+#include <port_io.h>
 
 #define MATCH_BG_COLOR display_color == WHITE ? BLACK : WHITE
 
@@ -87,6 +88,36 @@ void cmd_println(char *buffer, uint32_t color, bool terminal) {
         println(buffer, color);
 }
 
+static void play_sound(uint32_t nFrequence) {
+    uint32_t Div;
+    uint8_t tmp;
+
+    // Set the PIT to the desired frequency
+    Div = 1193180 / nFrequence;
+    outb(0x43, 0xb6);
+    outb(0x42, (uint8_t)(Div));
+    outb(0x42, (uint8_t)(Div >> 8));
+
+    // And play the sound using the PC speaker
+    tmp = inb(0x61);
+    if (tmp != (tmp | 3)) {
+        outb(0x61, tmp | 3);
+    }
+}
+
+static void nosound() {
+    uint8_t tmp = inb(0x61) & 0xFC;
+
+    outb(0x61, tmp);
+}
+
+// Make a beep
+void beep() {
+    play_sound(1000);
+    // nosound();
+    // set_PIT_2(old_frequency);
+}
+
 void cmd_handler(char *buffer, bool terminal) {
     char args[32][32];
     char *token;
@@ -121,6 +152,8 @@ void cmd_handler(char *buffer, bool terminal) {
                 uart_puts("\n");
             }
         }
+    } else if (!strcmp(args[0], "beep")) {
+        beep();
     } else if (!strcmp(args[0], "cat")) {
         char *path = args[1];
         cmd_println("\r\n", WHITE, terminal);
@@ -164,7 +197,6 @@ void cmd_handler(char *buffer, bool terminal) {
             __os_string_to_color(&display_color, args[2], false);
             render_background(display_color);
         }
-
     } else if (!strcmp(args[0], "rand")) {
         cmd_print("\r\n", WHITE, terminal);
         cmd_println(__itoa(rand() % 1000), MATCH_BG_COLOR, terminal);
