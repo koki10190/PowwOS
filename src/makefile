@@ -69,6 +69,7 @@ ${DISK_IMG}: ${BUILD_DIR} ${BOOTLOADER_BINARY} ${KERNEL_BINARY}
 	mcopy -i ${DISK_IMG} ${KERNEL_BINARY} ::/kernel.elf
 	mcopy -i ${DISK_IMG} ${ASSET_DIR}/tamsyn5x9.psf ::/tamsyn5x9.psf
 	mcopy -i ${DISK_IMG} ${ASSET_DIR}/zap-vga09.psf ::/zap-vga09.psf
+	mcopy -i ${DISK_IMG} ${ASSET_DIR}/zap-ext-vga16.psf ::/zap-ext-vga16.psf
 
 
 ${BOOTLOADER_BINARY}:

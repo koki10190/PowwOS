@@ -6,15 +6,19 @@
 #include <drivers/mouse.h>
 #include <display/window.h>
 
-int glyph_offset = 8;
+int glyph_offset_x = 8;
+int glyph_offset_y = 8;
 int text_start_x = 5, text_start_y = 25 + 10;
 int cursor_x = 5, cursor_y = 25 + 10;
 
 int center_x(int bg_width, int char_length) {
-    return (bg_width / 2) - ((char_length * glyph_offset) / 2);
+    return (bg_width / 2) - ((char_length * glyph_offset_x) / 2);
 }
 
 void render_topbar() {
+    glyph_offset_x = kernel_info->font->width;
+    glyph_offset_y = kernel_info->font->height;
+
     int width = kernel_info->video_mode_info.horizontal_resolution;
     int height = 25;
     uint32_t color_check = display_color == WHITE ? WHITE : BLACK;
@@ -25,10 +29,10 @@ void render_topbar() {
         }
     }
 
-    int y_pos = (height / 2) - (glyph_offset / 2);
+    int y_pos = (height / 2) - (glyph_offset_y / 2);
 
     render_text("PowwOS", 5, y_pos, color_check);
-    int len = strlen("PowwOS") * glyph_offset;
+    int len = strlen("PowwOS") * glyph_offset_x;
     render_text("|", len + 8, y_pos, color_check);
     render_text(shell_name, len + (8 * 3), y_pos, color_check);
 

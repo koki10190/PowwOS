@@ -46,7 +46,7 @@ typedef struct s_boot_video_info {
 
 #define PSF1_MAGIC0 0x36
 #define PSF1_MAGIC1 0x04
-#define MAIN_FONT_FILE L"zap-vga09.psf"
+#define MAIN_FONT_FILE L"zap-ext-vga16.psf"
 
 typedef struct __psf1_header_t {
     unsigned char magic[2];
@@ -57,6 +57,8 @@ typedef struct __psf1_header_t {
 typedef struct __psf1_font_t {
     psf1_header_t *header;
     void *glyph_buffer;
+    int width;  // glyph width
+    int height; // glyph height
 } psf1_font_t;
 
 typedef struct s_boot_info {

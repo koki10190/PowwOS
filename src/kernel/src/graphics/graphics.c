@@ -2,6 +2,7 @@
 #include <memory.h>
 #include <boot.h>
 #include <display/display.h>
+#include <uart.h>
 
 const uint8_t bitmap_1[128][8] = {
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // U+0000 (nul)
@@ -193,8 +194,8 @@ void render_char(char c, size_t x, size_t y, uint32_t color) {
         glyph = bitmap_1[(size_t)c];
     }
 
-    for (size_t yy = 0; yy < 8; yy++) {
-        for (size_t xx = 0; xx < 8; xx++) {
+    for (size_t yy = 0; yy < kernel_info->font->height; yy++) {
+        for (size_t xx = 0; xx < kernel_info->font->width; xx++) {
             if (kernel_info->font) {
                 if (((*glyph & (0b10000000 >> ((xx + x) - x)))) > 0) {
                     plot_pixel(x + xx, y + yy, color);
@@ -218,8 +219,8 @@ void render_str(const char *s, size_t x, size_t y, uint32_t color) {
 
     while ((c = *s++) != 0) {
         if (c == '\n') {
-            y += 10;
-            cursor_y += 10;
+            y += kernel_info->font->height + 2;
+            cursor_y += kernel_info->font->height + 2;
             continue;
         }
         if (c == '\r') {
@@ -228,8 +229,8 @@ void render_str(const char *s, size_t x, size_t y, uint32_t color) {
             continue;
         }
         render_char(c, x, y, color);
-        cursor_x += 8;
-        x += 8;
+        cursor_x += kernel_info->font->width;
+        x += kernel_info->font->width;
     }
 }
 
@@ -240,8 +241,8 @@ void render_text(const char *s, size_t x, size_t y, uint32_t color) {
 
     while ((c = *s++) != 0) {
         if (c == '\n') {
-            y += 10;
-            cursor_y += 10;
+            y += kernel_info->font->height + 2;
+            cursor_y += kernel_info->font->height + 2;
             continue;
         }
         if (c == '\r') {
@@ -249,7 +250,7 @@ void render_text(const char *s, size_t x, size_t y, uint32_t color) {
             continue;
         }
         render_char(c, x, y, color);
-        x += 8;
+        x += kernel_info->font->width;
     }
 }
 
@@ -260,32 +261,46 @@ void render_text_bb(const char *s, size_t x, size_t y, uint32_t color) {
 
     while ((c = *s++) != 0) {
         if (c == '\n') {
-            y += 10;
-            cursor_y += 10;
+            y += kernel_info->font->height + 2;
+            cursor_y += kernel_info->font->height + 2;
             continue;
         }
         if (c == '\r') {
             x = x_backup;
             continue;
         }
-        const uint8_t *glyph = bitmap_1[(size_t)c];
+        uint8_t *glyph = NULL;
+        if (kernel_info->font) {
+            glyph = kernel_info->font->glyph_buffer + (c * kernel_info->font->header->charsize);
+        } else {
+            glyph = bitmap_1[(size_t)c];
+        }
 
-        for (size_t yy = 0; yy < 8; yy++) {
-            for (size_t xx = 0; xx < 8; xx++) {
-                if (glyph[yy] & (1 << xx)) {
-                    plot_pixel_buffer(x + xx, y + yy, color, back_buffer);
+        for (size_t yy = 0; yy < kernel_info->font->height; yy++) {
+            for (size_t xx = 0; xx < kernel_info->font->width; xx++) {
+                if (kernel_info->font) {
+                    if (((*glyph & (0b10000000 >> ((xx + x) - x)))) > 0) {
+                        plot_pixel_buffer(x + xx, y + yy, color, back_buffer);
+                    }
+                } else {
+                    if (glyph[yy] & (1 << xx)) {
+                        plot_pixel_buffer(x + xx, y + yy, color, back_buffer);
+                    }
                 }
             }
+            if (kernel_info->font) {
+                glyph++;
+            }
         }
-        x += 8;
+        x += kernel_info->font->width;
     }
 }
 
 void render_delchar(char c, size_t x, size_t y, uint32_t color) {
     const uint8_t *glyph = bitmap_1[(size_t)c];
 
-    for (size_t yy = 0; yy < 8; yy++) {
-        for (size_t xx = 0; xx < 8; xx++) {
+    for (size_t yy = 0; yy < kernel_info->font->height; yy++) {
+        for (size_t xx = 0; xx < kernel_info->font->width; xx++) {
             // if (glyph[yy] & (1 << xx)) {
             plot_pixel(x + xx, y + yy, color);
             // }

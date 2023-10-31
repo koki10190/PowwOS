@@ -22,10 +22,10 @@ void window_render_char(window_t *window, char c, int x, int y, uint32_t color) 
         glyph = bitmap_1[(size_t)c];
     }
 
-    for (size_t yy = 0; yy < 8; yy++) {
+    for (size_t yy = 0; yy < kernel_info->font->height; yy++) {
         if (window->position.y + tb_height + yy + y > window->position.y + window->size.y - 1)
             continue;
-        for (size_t xx = 0; xx < 8; xx++) {
+        for (size_t xx = 0; xx < kernel_info->font->width; xx++) {
             if (kernel_info->font) {
                 if (window->position.x + xx + x > window->position.x + window->size.x - 1)
                     continue;
@@ -46,16 +46,33 @@ void window_render_char(window_t *window, char c, int x, int y, uint32_t color) 
     }
 }
 void window_render_char_margin(window_t *window, char c, int x, int y, uint32_t color, int margin_x, int margin_y) {
-    const uint8_t *glyph = bitmap_1[(size_t)c];
-    for (size_t yy = 0; yy < 8; yy++) {
+    uint8_t *glyph = NULL;
+
+    if (kernel_info->font) {
+        glyph = kernel_info->font->glyph_buffer + (c * kernel_info->font->header->charsize);
+    } else {
+        glyph = bitmap_1[(size_t)c];
+    }
+    for (size_t yy = 0; yy < kernel_info->font->height; yy++) {
         if (margin_x + window->position.y + tb_height + yy + y > window->position.y + window->size.y - 1 - margin_x)
             continue;
-        for (size_t xx = 0; xx < 8; xx++) {
-            if (glyph[yy] & (1 << xx)) {
+        for (size_t xx = 0; xx < kernel_info->font->width; xx++) {
+            if (kernel_info->font) {
                 if (margin_y + window->position.x + xx + x > window->position.x + window->size.x - 1 - margin_y)
                     continue;
-                plot_pixel_buffer(margin_x + window->position.x + x + xx, margin_y + window->position.y + tb_height + y + yy, color, back_buffer);
+                if (((*glyph & (0b10000000 >> ((xx + x) - x)))) > 0) {
+                    plot_pixel_buffer(margin_x + window->position.x + x + xx, margin_y + window->position.y + tb_height + y + yy, color, back_buffer);
+                }
+            } else {
+                if (margin_y + window->position.x + xx + x > window->position.x + window->size.x - 1 - margin_y)
+                    continue;
+                if (glyph[yy] & (1 << xx)) {
+                    plot_pixel_buffer(margin_x + window->position.x + x + xx, margin_y + window->position.y + tb_height + y + yy, color, back_buffer);
+                }
             }
+        }
+        if (kernel_info->font) {
+            glyph++;
         }
     }
 }
@@ -212,8 +229,8 @@ void render_window(window_t *window) {
         }
     }
 
-    int tb_center_x = (width / 2) - ((__strlen(window->title) * 8) / 2);
-    int tb_center_y = (tb_height / 2) - (8 / 2);
+    int tb_center_x = (width / 2) - ((__strlen(window->title) * kernel_info->font->width) / 2);
+    int tb_center_y = (tb_height / 2) - (kernel_info->font->height / 2);
 
     render_text_bb(window->title, window->position.x + tb_center_x, window->position.y + tb_center_y, 0xffffff - title_bar_color);
     // title bar
@@ -272,8 +289,8 @@ void window_render_button(window_t *window, button_t *button) {
     int x = button->position.x;
     int y = button->position.y;
 
-    int center_x = (button->size.x / 2) - ((__strlen(button->label) * 8) / 2);
-    int center_y = (button->size.y / 2) - (8 / 2);
+    int center_x = (button->size.x / 2) - ((__strlen(button->label) * kernel_info->font->width) / 2);
+    int center_y = (button->size.y / 2) - (kernel_info->font->height / 2);
     button_events(window, button);
 
     bool collision_check = collision((vector2_t){

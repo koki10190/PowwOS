@@ -386,6 +386,8 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 #endif
 
     psf1_font_t *font = load_psf1_font(NULL, MAIN_FONT_FILE, ImageHandle, SystemTable);
+    font->width = 8;
+    font->height = 16;
 
     if (font == NULL)
         debug_print_line(L"Debug: Font not found!\n");

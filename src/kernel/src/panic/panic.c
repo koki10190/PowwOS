@@ -14,7 +14,7 @@ void enter_panic_state(char *panic_reason) {
     int text_length = __strlen(panic_reason);
 
     int center_x = (screen_width / 2) - ((text_length * 8) / 2);
-    int center_y = (screen_height / 2) - (8 / 2);
+    int center_y = (screen_height / 2) - (kernel_info->font->height);
 
     render_text("what the fuck have you done.", 10, 10, BLACK);
     render_text(panic_reason, center_x, center_y, BLACK);

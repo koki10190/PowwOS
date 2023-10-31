@@ -47,6 +47,8 @@ typedef struct __psf1_header_t {
 typedef struct __psf1_font_t {
     psf1_header_t *header;
     void *glyph_buffer;
+    int width;  // glyph width
+    int height; // glyph height
 } psf1_font_t;
 
 typedef struct s_boot_info {
