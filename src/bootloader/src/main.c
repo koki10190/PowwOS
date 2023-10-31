@@ -178,6 +178,61 @@ UINTN __strcmp(CHAR8 *a, CHAR8 *b, UINTN length) {
     return 1;
 }
 
+EFI_FILE *LoadFile(EFI_FILE *directory, CHAR16 *path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
+    EFI_FILE *LoadedFile;
+
+    EFI_LOADED_IMAGE_PROTOCOL *loaded_image;
+    uefi_call_wrapper(SystemTable->BootServices->HandleProtocol, 3, ImageHandle, &gEfiLoadedImageProtocolGuid, (void **)&loaded_image);
+
+    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *fs;
+    uefi_call_wrapper(SystemTable->BootServices->HandleProtocol, 3, loaded_image->DeviceHandle, &gEfiSimpleFileSystemProtocolGuid, (void **)&fs);
+
+    if (directory == NULL) {
+        uefi_call_wrapper(fs->OpenVolume, 2, fs, &directory);
+    }
+
+    EFI_STATUS s = uefi_call_wrapper(directory->Open, 5, directory, &LoadedFile, path, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY);
+    if (s != EFI_SUCCESS) {
+        return NULL;
+    }
+    return LoadedFile;
+}
+
+psf1_font_t *load_psf1_font(EFI_FILE *directory, CHAR16 *path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
+    EFI_FILE *font = LoadFile(directory, path, ImageHandle, SystemTable);
+    debug_print_line(L"Debug: Checking font file\n");
+    if (font == NULL)
+        return NULL;
+
+    psf1_header_t *font_header;
+    uefi_call_wrapper(SystemTable->BootServices->AllocatePool, 3, EfiLoaderData, sizeof(psf1_header_t), (void **)&font_header);
+    UINTN size = sizeof(psf1_header_t);
+
+    uefi_call_wrapper(font->Read, 3, font, &size, font_header);
+
+    debug_print_line(L"Debug: Checking magic values\n");
+    if (font_header->magic[0] != PSF1_MAGIC0 || font_header->magic[1] != PSF1_MAGIC1)
+        return NULL;
+
+    UINTN glyph_buffer_size = font_header->charsize * 256;
+    if (font_header->mode == 1)
+        glyph_buffer_size = font_header->charsize * 512;
+
+    void *glyph_buffer;
+    {
+        uefi_call_wrapper(font->SetPosition, 2, font, sizeof(psf1_header_t));
+        uefi_call_wrapper(SystemTable->BootServices->AllocatePool, 3, EfiLoaderData, glyph_buffer_size, (void **)&glyph_buffer);
+        uefi_call_wrapper(font->Read, 3, font, &glyph_buffer_size, glyph_buffer);
+    }
+
+    psf1_font_t *finished_font;
+    uefi_call_wrapper(SystemTable->BootServices->AllocatePool, 3, EfiLoaderData, sizeof(psf1_font_t), (void **)&finished_font);
+
+    finished_font->header = font_header;
+    finished_font->glyph_buffer = glyph_buffer;
+    return finished_font;
+}
+
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
                            EFI_SYSTEM_TABLE *SystemTable) {
     /** Main bootloader application status. */
@@ -329,37 +384,25 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
     debug_print_line(L"Debug: Set Kernel Entry Point to: '0x%llx'\n",
                      *kernel_entry_point);
 #endif
-#ifdef DEBUG
-    debug_print_line(L"Debug 1: Setting framebuffer\n");
-#endif
+
+    psf1_font_t *font = load_psf1_font(NULL, MAIN_FONT_FILE, ImageHandle, SystemTable);
+
+    if (font == NULL)
+        debug_print_line(L"Debug: Font not found!\n");
+    else
+        debug_print_line(L"Debug: Font found!\n");
+
+    boot_info.font = font;
     boot_info.video_mode_info.framebuffer_pointer =
         (VOID *)graphics_output_protocol->Mode->FrameBufferBase;
     boot_info.video_mode_info.framebuffer_size = graphics_output_protocol->Mode->FrameBufferSize;
-#ifdef DEBUG
-    debug_print_line(L"Debug 1: Setting framebuffer size\n");
-#endif
     boot_info.video_mode_info.pixel_buffer = pixel_buffer;
-#ifdef DEBUG
-    debug_print_line(L"Debug 1: Setting pixel buffer\n");
-#endif
     boot_info.video_mode_info.horizontal_resolution =
         graphics_output_protocol->Mode->Info->HorizontalResolution;
-#ifdef DEBUG
-    debug_print_line(L"Debug 1: Setting res1\n");
-#endif
     boot_info.video_mode_info.vertical_resolution =
         graphics_output_protocol->Mode->Info->VerticalResolution;
-#ifdef DEBUG
-    debug_print_line(L"Debug 1: Setting res2\n");
-#endif
     boot_info.video_mode_info.pixels_per_scaline =
         graphics_output_protocol->Mode->Info->PixelsPerScanLine;
-#ifdef DEBUG
-    debug_print_line(L"Debug 1: Setting ppsl\n");
-#endif
-#ifdef DEBUG
-    debug_print_line(L"Debug 1: Setted Boot Info\n");
-#endif
 
     EFI_CONFIGURATION_TABLE *config_table = SystemTable->ConfigurationTable;
     void *rsdp = NULL;

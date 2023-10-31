@@ -37,12 +37,25 @@ typedef struct s_boot_video_info {
  * @brief Boot info struct.
  * Contains information passed to the kernel at boot time by the bootloader.
  */
+
+typedef struct __psf1_header_t {
+    unsigned char magic[2];
+    unsigned char mode;
+    unsigned char charsize;
+} psf1_header_t;
+
+typedef struct __psf1_font_t {
+    psf1_header_t *header;
+    void *glyph_buffer;
+} psf1_font_t;
+
 typedef struct s_boot_info {
     Memory_Map_Descriptor *memory_map;
     uint64_t mmap_size;
     uint64_t mmap_descriptor_size;
     Kernel_Boot_Video_Mode_Info video_mode_info;
     RSDP2_T *rsdp;
+    psf1_font_t *font;
 } Boot_Info;
 
 extern Boot_Info *kernel_info;

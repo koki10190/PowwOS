@@ -24,8 +24,12 @@ BUILD_DIR         := ../build
 DISK_IMG          := ${BUILD_DIR}/kernel.img
 DISK_IMG_SIZE     := 2880
 
+ASSET_DIR = ../assets
+
 QEMU_FLAGS :=                                                \
+	-enable-kvm \
 	-machine q35 \
+	-cpu host \
 	-m 2G \
 	-bios OVMF.fd                                              \
 	-drive if=none,id=uas-disk1,file=${DISK_IMG},format=raw    \
@@ -63,6 +67,9 @@ ${DISK_IMG}: ${BUILD_DIR} ${BOOTLOADER_BINARY} ${KERNEL_BINARY}
 	# Copy the bootloader to the boot partition.
 	mcopy -i ${DISK_IMG} ${BOOTLOADER_BINARY} ::/efi/boot/bootx64.efi
 	mcopy -i ${DISK_IMG} ${KERNEL_BINARY} ::/kernel.elf
+	mcopy -i ${DISK_IMG} ${ASSET_DIR}/tamsyn5x9.psf ::/tamsyn5x9.psf
+	mcopy -i ${DISK_IMG} ${ASSET_DIR}/zap-vga09.psf ::/zap-vga09.psf
+
 
 ${BOOTLOADER_BINARY}:
 	make -C ${BOOTLOADER_DIR}

@@ -43,12 +43,29 @@ typedef struct s_boot_video_info {
  * automatically use the correct types for the target architecture. The corresponding
  * definition within the kernel should have more architecture-specific types.
  */
+
+#define PSF1_MAGIC0 0x36
+#define PSF1_MAGIC1 0x04
+#define MAIN_FONT_FILE L"zap-vga09.psf"
+
+typedef struct __psf1_header_t {
+    unsigned char magic[2];
+    unsigned char mode;
+    unsigned char charsize;
+} psf1_header_t;
+
+typedef struct __psf1_font_t {
+    psf1_header_t *header;
+    void *glyph_buffer;
+} psf1_font_t;
+
 typedef struct s_boot_info {
     EFI_MEMORY_DESCRIPTOR *memory_map;
     UINTN memory_map_size;
     UINTN memory_map_descriptor_size;
     Kernel_Boot_Video_Mode_Info video_mode_info;
     void *rsdp;
+    psf1_font_t *font;
 } Kernel_Boot_Info;
 
 /**
