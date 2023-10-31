@@ -10,9 +10,9 @@
 #include <drivers/keyboard.h>
 #include <time/rtc.h>
 #include <sprites.h>
+#include <stdlib.h>
 
 static window_t *osaka_window;
-
 void osaka_update() {
     render_osaka_icon_sprite(osaka_window->position.x, osaka_window->position.y + 20, WHITE);
 }
