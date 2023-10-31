@@ -25,29 +25,112 @@ void paint_update() {
             int x_pos = paint_window->position.x + xx;
             if (mouse.position.x == x_pos && mouse.position.y == y_pos && mouse.left_clicked) {
                 rect_pixels[xx + yy * PAINT_RECT_WIDTH] = current_color;
-                if (xx + 1 < PAINT_RECT_WIDTH - 1) {
-                    rect_pixels[(xx + 1) + yy * PAINT_RECT_WIDTH] = current_color;
+                /*
+                0, 0
+                1, 0
+                */
+                rect_pixels[(xx + 1) + yy * PAINT_RECT_WIDTH] = current_color;
+                /*
+                0, 0
+                1, 1
+                */
+                rect_pixels[(xx + 1) + (yy + 1) * PAINT_RECT_WIDTH] = current_color;
+                /*
+                0, 1
+                1, 1
+                */
+                rect_pixels[xx + (yy + 1) * PAINT_RECT_WIDTH] = current_color;
+                /*
+                1, 1
+                1, 1
+                */
+                rect_pixels[(xx - 1) + (yy + 1) * PAINT_RECT_WIDTH] = current_color;
+                /*
+                1, 1, 1
+                0, 1, 1
+                */
+                rect_pixels[(xx - 1) + yy * PAINT_RECT_WIDTH] = current_color;
+                /*
+                1, 1, 1
+                1, 1, 1
+                */
+                rect_pixels[(xx - 1) + (yy - 1) * PAINT_RECT_WIDTH] = current_color;
+                /*
+                1, 1, 1
+                1, 1, 1
+                1, 0, 0
+                */
+                rect_pixels[(xx) + (yy - 1) * PAINT_RECT_WIDTH] = current_color;
+                /*
+                1, 1, 1
+                1, 1, 1
+                1, 1, 0
+                */
+                rect_pixels[(xx + 1) + (yy - 1) * PAINT_RECT_WIDTH] = current_color;
+                /*
+                1, 1, 1
+                1, 1, 1
+                1, 1, 1
+                */
 
-                    if (yy + 1 < PAINT_RECT_HEIGHT - 1) {
-                        rect_pixels[(xx + 1) + (yy + 1) * PAINT_RECT_WIDTH] = current_color;
-                    }
-                }
+                // if (xx + 1 < PAINT_RECT_WIDTH - 1) {
 
-                if (yy + 1 < PAINT_RECT_HEIGHT - 1) {
-                    rect_pixels[xx + (yy + 1) * PAINT_RECT_WIDTH] = current_color;
-                }
+                //     if (yy + 1 < PAINT_RECT_HEIGHT - 1) {
+                //     }
+                // }
+
+                // if (yy + 1 < PAINT_RECT_HEIGHT - 1) {
+                // }
+
             } else if (mouse.position.x == x_pos && mouse.position.y == y_pos && mouse.right_clicked) {
-                if (xx + 1 < PAINT_RECT_WIDTH - 1) {
-                    rect_pixels[(xx + 1) + yy * PAINT_RECT_WIDTH] = WHITE;
-
-                    if (yy + 1 < PAINT_RECT_HEIGHT - 1) {
-                        rect_pixels[(xx + 1) + (yy + 1) * PAINT_RECT_WIDTH] = WHITE;
-                    }
-                }
-
-                if (yy + 1 < PAINT_RECT_HEIGHT - 1) {
-                    rect_pixels[xx + (yy + 1) * PAINT_RECT_WIDTH] = WHITE;
-                }
+                rect_pixels[xx + yy * PAINT_RECT_WIDTH] = WHITE;
+                /*
+                0, 0
+                1, 0
+                */
+                rect_pixels[(xx + 1) + yy * PAINT_RECT_WIDTH] = WHITE;
+                /*
+                0, 0
+                1, 1
+                */
+                rect_pixels[(xx + 1) + (yy + 1) * PAINT_RECT_WIDTH] = WHITE;
+                /*
+                0, 1
+                1, 1
+                */
+                rect_pixels[xx + (yy + 1) * PAINT_RECT_WIDTH] = WHITE;
+                /*
+                1, 1
+                1, 1
+                */
+                rect_pixels[(xx - 1) + (yy + 1) * PAINT_RECT_WIDTH] = WHITE;
+                /*
+                1, 1, 1
+                0, 1, 1
+                */
+                rect_pixels[(xx - 1) + yy * PAINT_RECT_WIDTH] = WHITE;
+                /*
+                1, 1, 1
+                1, 1, 1
+                */
+                rect_pixels[(xx - 1) + (yy - 1) * PAINT_RECT_WIDTH] = WHITE;
+                /*
+                1, 1, 1
+                1, 1, 1
+                1, 0, 0
+                */
+                rect_pixels[(xx) + (yy - 1) * PAINT_RECT_WIDTH] = WHITE;
+                /*
+                1, 1, 1
+                1, 1, 1
+                1, 1, 0
+                */
+                rect_pixels[(xx + 1) + (yy - 1) * PAINT_RECT_WIDTH] = WHITE;
+                /*
+                1, 1, 1
+                1, 1, 1
+                1, 1, 1
+                */
             }
 
             plot_pixel_buffer(x_pos, y_pos, rect_pixels[xx + yy * PAINT_RECT_WIDTH], back_buffer);

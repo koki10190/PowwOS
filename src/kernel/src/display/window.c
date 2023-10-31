@@ -14,16 +14,34 @@ uint32_t window_buffer[500 * 500];
 int tb_height = 20;
 
 void window_render_char(window_t *window, char c, int x, int y, uint32_t color) {
-    const uint8_t *glyph = bitmap_1[(size_t)c];
+    uint8_t *glyph = NULL;
+
+    if (kernel_info->font) {
+        glyph = kernel_info->font->glyph_buffer + (c * kernel_info->font->header->charsize);
+    } else {
+        glyph = bitmap_1[(size_t)c];
+    }
+
     for (size_t yy = 0; yy < 8; yy++) {
         if (window->position.y + tb_height + yy + y > window->position.y + window->size.y - 1)
             continue;
         for (size_t xx = 0; xx < 8; xx++) {
-            if (glyph[yy] & (1 << xx)) {
+            if (kernel_info->font) {
                 if (window->position.x + xx + x > window->position.x + window->size.x - 1)
                     continue;
-                plot_pixel_buffer(window->position.x + x + xx, window->position.y + tb_height + y + yy, color, back_buffer);
+                if (((*glyph & (0b10000000 >> ((xx + x) - x)))) > 0) {
+                    plot_pixel_buffer(window->position.x + x + xx, window->position.y + tb_height + y + yy, color, back_buffer);
+                }
+            } else {
+                if (window->position.x + xx + x > window->position.x + window->size.x - 1)
+                    continue;
+                if (glyph[yy] & (1 << xx)) {
+                    plot_pixel_buffer(window->position.x + x + xx, window->position.y + tb_height + y + yy, color, back_buffer);
+                }
             }
+        }
+        if (kernel_info->font) {
+            glyph++;
         }
     }
 }
