@@ -158,7 +158,7 @@ void terminal_update() {
         } else {
             window_render_text_margin(terminal_window, buffer, 0, cursor_y, terminal_display_buffer[i].color, margin_x, margin_y);
         }
-        cursor_y += 10;
+        cursor_y += kernel_info->font->height + 2;
     }
 }
 

@@ -83,7 +83,7 @@ void window_render_text(window_t *window, char *s, int x, int y, uint32_t color)
 
     while ((c = *s++) != 0) {
         if (c == '\n') {
-            y += 10;
+            y += kernel_info->font->height;
             continue;
         }
         if (c == '\r') {
@@ -103,7 +103,7 @@ void window_render_text_margin(window_t *window, char *s, int x, int y, uint32_t
 
     while ((c = *s++) != 0) {
         if (c == '\n') {
-            y += 10;
+            y += kernel_info->font->height;
             continue;
         }
         if (c == '\r') {

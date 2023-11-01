@@ -69,7 +69,7 @@ char get_ascii_char(char keycode, int uppercase) {
     case 0x03:
         return shift_pressed == 0 ? '2' : '"';
     case 0x04:
-        return shift_pressed == 0 ? '3' : '3';
+        return shift_pressed == 0 ? '3' : '#';
     case 0x05:
         return shift_pressed == 0 ? '4' : '$';
     case 0x06:
