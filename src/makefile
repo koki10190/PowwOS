@@ -30,6 +30,7 @@ QEMU_FLAGS :=                                                \
 	-enable-kvm \
 	-machine q35 \
 	-drive file=${DISK_IMG},format=raw    \
+	-drive file=../iso/blank.img,format=raw    \
 	-cpu host \
 	-m 2G \
 	-bios OVMF.fd                                              \

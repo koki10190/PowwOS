@@ -57,15 +57,15 @@ void ahci_driver_init(ahci_driver_t *this, pci_device_header_t *pci_base_addr) {
 
         port->buffer = pg_alloc_request_page(&global_allocator);
         m_memset(port->buffer, 0, 0x1000);
+        // uint8_t buffer[1024];
         ahci_port_read(port, 0, 4, port->buffer);
         for (int i = 0; i < 1024; i++) {
-            uart_putchar('|');
             uart_putchar(port->buffer[i]);
         }
-        uart_puts("\n");
+        // uart_puts("\n");
     }
 
-    uart_puts("[POWW-KERNEL] AHCI Driver initialized\n");
+    // uart_puts("[POWW-KERNEL] AHCI Driver initialized\n");
 }
 
 void ahci_driver_probe_ports(ahci_driver_t *this) {
@@ -81,6 +81,7 @@ void ahci_driver_probe_ports(ahci_driver_t *this) {
                 this->ports[port_count]->hba_port = &this->abar->ports[i];
                 hba_port_t port = *this->ports[port_count]->hba_port;
                 // This is required otherwise it crashes for some reason lmfao
+                // printf_ln(__itoa(__port_type));
                 printf_ln(__itoa(port.cmd_issue));
                 port_count++;
             }
@@ -137,6 +138,7 @@ void ahci_port_stop_cmd(ahci_port_t *this) {
 }
 
 bool ahci_port_read(ahci_port_t *this, uint64_t sector, uint32_t sector_count, void *buffer) {
+    // uart_puts("readin");
     uint32_t sectorl = (uint32_t)sector;
     uint32_t sectorh = (uint32_t)(sector >> 32);
 
@@ -177,6 +179,7 @@ bool ahci_port_read(ahci_port_t *this, uint64_t sector, uint32_t sector_count, v
     if (spin == 1000000) {
         return false;
     }
+    // uart_puts("read!");
 
     this->hba_port->cmd_issue = 1;
 
@@ -187,6 +190,7 @@ bool ahci_port_read(ahci_port_t *this, uint64_t sector, uint32_t sector_count, v
         if (this->hba_port->interrupt_status & HBA_PxIS_TFES)
             return false;
     }
+    uart_puts("read2!");
 
     return true;
 }
