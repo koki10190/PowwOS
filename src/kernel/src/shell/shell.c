@@ -12,14 +12,17 @@
 
 #define MATCH_BG_COLOR display_color == WHITE ? BLACK : WHITE
 
+// The poww ~ starter
 void render_shell_starter() {
     print("\r\n", WHITE);
     print(shell_name, shell_name_color);
     print(" ~ ", YELLOW);
 }
 
+// Ignore thisd
 char current_directory[500] = "/";
 
+// Translate string to a hex color
 void __os_string_to_color(uint32_t *color, char *buffer, bool bg_mode) {
     if (!strcmp(buffer, "blue")) {
         (*color) = BLUE;
@@ -74,6 +77,7 @@ void __os_string_to_color(uint32_t *color, char *buffer, bool bg_mode) {
     }
 }
 
+// Terminal print
 void cmd_print(char *buffer, uint32_t color, bool terminal) {
     if (terminal)
         terminal_print(buffer, color);
@@ -88,6 +92,7 @@ void cmd_println(char *buffer, uint32_t color, bool terminal) {
         println(buffer, color);
 }
 
+// Ignore this
 static void play_sound(uint32_t nFrequence) {
     uint32_t Div;
     uint8_t tmp;
@@ -105,31 +110,37 @@ static void play_sound(uint32_t nFrequence) {
     }
 }
 
+// Ignore this
 static void nosound() {
     uint8_t tmp = inb(0x61) & 0xFC;
 
     outb(0x61, tmp);
 }
 
-// Make a beep
+// Ignore this
 void beep() {
     play_sound(1000);
     // nosound();
     // set_PIT_2(old_frequency);
 }
 
+// Command handler
 void cmd_handler(char *buffer, bool terminal) {
+    // Array of arguments
     char args[32][32];
     char *token;
     char *rest = buffer;
     int index = 0;
 
+    // Split the string by a space and copy it to the args[index] string
     while ((token = strtok_r(rest, " ", &rest))) {
         strcpy(args[index], token);
         index++;
     }
 
+    // Commands
     if (!strcmp(args[0], "clear")) {
+        // clears the screen duh
         if (terminal) {
             terminal_clear_screen();
             terminal_skip_enter_nl = true;
@@ -140,9 +151,11 @@ void cmd_handler(char *buffer, bool terminal) {
             render_topbar();
         }
     } else if (!strcmp(args[0], "touch")) {
+        // Creates a "file" in the shitty RamFS
         char *path = args[1];
         ramfs_create(path, (uint8_t *)"");
     } else if (!strcmp(args[0], "ls")) {
+        // Lists all "files" in the shitty RamFS
         cmd_println("\r\n", WHITE, terminal);
         for (int i = 0; i < MAX_RAMFS_FILES; i++) {
             if (!ramfs.files[i].deleted) {
@@ -153,8 +166,10 @@ void cmd_handler(char *buffer, bool terminal) {
             }
         }
     } else if (!strcmp(args[0], "beep")) {
+        // Should beep but it doesn't cause i'm a fucking dumbass
         beep();
     } else if (!strcmp(args[0], "cat")) {
+        // Print the text from a "file" in RamFS
         char *path = args[1];
         cmd_println("\r\n", WHITE, terminal);
         file_t *file = ramfs_open(path);
@@ -166,11 +181,13 @@ void cmd_handler(char *buffer, bool terminal) {
             cmd_println("\r\n", WHITE, terminal);
         }
     } else if (!strcmp(args[0], "write")) {
+        // Write to file
         char *path = args[1];
         cmd_println("\r\n", WHITE, false);
         file_t *file = ramfs_open(path);
         file->buffer = args[2];
     } else if (!strcmp(args[0], "time")) {
+        // Get the full time and date and print it on the screen, DD/MM/YYYY HH:MM format
         poww_time *date;
         get_time(date);
         cmd_println("\r\n", WHITE, terminal);
@@ -185,30 +202,39 @@ void cmd_handler(char *buffer, bool terminal) {
         cmd_print(":", PINK, terminal);
         cmd_println(__itoa(date->min), PINK, terminal);
     } else if (!strcmp(args[0], "set")) {
+        // Set the user name
         if (!strcmp(args[1], "name")) {
             strcpy(shell_name, args[2]);
         }
 
+        // Set the name color
         if (!strcmp(args[1], "name-color")) {
             __os_string_to_color(&shell_name_color, args[2], false);
         }
 
+        // Set the background color, you can change this from an application too
         if (!strcmp(args[1], "bg-color")) {
             __os_string_to_color(&display_color, args[2], false);
             render_background(display_color);
         }
     } else if (!strcmp(args[0], "rand")) {
+        // Print out a random number (for testing)
         cmd_print("\r\n", WHITE, terminal);
         cmd_println(__itoa(rand() % 1000), MATCH_BG_COLOR, terminal);
     } else if (!strcmp(args[0], "panic")) {
+        // Invoke a Page Fault
         asm("int $0x0e");
     } else if (!strcmp(args[0], "calculator") || !strcmp(args[0], "calc")) {
+        // Run calculator application
         calculator_init();
     } else if (!strcmp(args[0], "terminal") || !strcmp(args[0], "shell") || !strcmp(args[0], "term")) {
+        // Run terminal application
         terminal_init();
     } else if (!strcmp(args[0], "osaka")) {
+        // Run osaka application
         osaka_init();
     } else {
+        // If none of the commands were found, then print out "Invalid Command"
         cmd_println("\r\n-> poww: Invalid Command!", LIGHTRED, terminal);
     }
 }

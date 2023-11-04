@@ -25,6 +25,7 @@ void sleep(uint64_t miliseconds) {
     sleepd((double)miliseconds / 1000);
 }
 
+// Set PIT Divisor
 void set_divisor(uint16_t __divisor) {
     if (__divisor < 100)
         __divisor = 100;
@@ -35,14 +36,17 @@ void set_divisor(uint16_t __divisor) {
     outb(0x40, (uint8_t)((divisor & 0xff00) >> 8));
 }
 
+// Get PIT Frequency
 uint16_t get_frequency() {
     return base_frequency / divisor;
 }
 
+// Set PIT Frequency
 void set_frequency(uint64_t frequency) {
     set_divisor(base_frequency / frequency);
 }
 
+// Tick
 void tick() {
     // uart_puts("tick interrupt");
     time_since_boot += 1 / (double)get_frequency();

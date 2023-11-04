@@ -11,7 +11,7 @@ void pg_alloc_read_memory_map(page_frame_allocator_t *this, Memory_Map_Descripto
         return;
     initialized = true;
 
-    uint64_t mmap_entries = mmap_size / mmap_desc_size;
+    uint64_t mmap_entries = kernel_info->mmap_size / kernel_info->mmap_descriptor_size;
     void *largest_free_memory_seg = NULL;
     size_t largest_free_memory_segsize = 0;
 

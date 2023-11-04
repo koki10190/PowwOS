@@ -5,6 +5,8 @@
 #include <uart.h>
 #include <memory.h>
 
+// too lazy to comment this cause its garbage and will be reworked on/deleted
+
 fs_t ramfs;
 
 void init_ramfs() {

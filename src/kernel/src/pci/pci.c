@@ -8,12 +8,15 @@ void enumerate_function(uint64_t device_addr, uint64_t function) {
     uint64_t offset = function << 12;
     uint64_t function_addr = device_addr + offset;
 
+    // Cast a uint64_t address to pci_device_header_t type
     pci_device_header_t *pci_device_header = (pci_device_header_t *)function_addr;
+    // If the device ids are invalid
     if (pci_device_header->device_id == 0)
         return;
     if (pci_device_header->device_id == 0xFFFF)
         return;
 
+    // Print out the device information
     uart_puts(get_vendor_name(pci_device_header->vendor_id));
     uart_puts(" | ");
     uart_puts(get_device_name(pci_device_header->vendor_id, pci_device_header->device_id));
@@ -25,6 +28,7 @@ void enumerate_function(uint64_t device_addr, uint64_t function) {
     uart_puts(get_prog_if_name(pci_device_header->class, pci_device_header->subclass, pci_device_header->prog_if));
     uart_puts("\n");
 
+    // AHCI Driver
     switch (pci_device_header->class) {
     case 0x01:
         switch (pci_device_header->subclass) {
