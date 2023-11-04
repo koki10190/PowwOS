@@ -29,16 +29,15 @@ ASSET_DIR = ../assets
 QEMU_FLAGS :=                                                \
 	-enable-kvm \
 	-machine q35 \
+	-drive file=${DISK_IMG},format=raw    \
 	-cpu host \
 	-m 2G \
 	-bios OVMF.fd                                              \
-	-drive if=none,id=uas-disk1,file=${DISK_IMG},format=raw    \
-	-drive if=none,id=uas-disk2,file=../iso/blank.img,format=raw    \
-	-device usb-storage,drive=uas-disk1                        \
 	-serial stdio                                              \
 	-usb                                                       \
 	-net none                                                  \
 	-vga std
+	# -device usb-storage,drive=uas-disk1                        \
 
 .PHONY: all clean emu
 

@@ -14,6 +14,8 @@
 #define HBA_PXCMD_ST 0x0001
 #define HBA_PXCMD_FR 0x4000
 
+uint8_t port_count = 0;
+
 port_type check_port_type(hba_port_t *port) {
     uint32_t sata_status = port->sata_status;
 
@@ -60,15 +62,13 @@ void ahci_driver_probe_ports(ahci_driver_t *this) {
     for (int i = 0; i < 32; i++) {
         if (ports_implemented & (1 << i)) {
             port_type __port_type = check_port_type(&this->abar->ports[i]);
-            if (__port_type == SATA)
-                uart_puts("fuck ");
 
             if (__port_type == SATA || __port_type == SATAPI) {
-                this->ports[this->port_count] = (void *)__malloc(sizeof(ahci_port_t));
-                this->ports[this->port_count]->__port_type = __port_type;
-                this->ports[this->port_count]->port_number = this->port_count;
-                this->ports[this->port_count]->hba_port = &this->abar->ports[i];
-                this->port_count++;
+                this->ports[port_count] = (void *)__malloc(sizeof(ahci_port_t));
+                this->ports[port_count]->__port_type = __port_type;
+                this->ports[port_count]->port_number = port_count;
+                this->ports[port_count]->hba_port = &this->abar->ports[i];
+                port_count++;
             }
         }
     }
@@ -89,13 +89,13 @@ void ahci_port_configure(ahci_port_t *this) {
 
     hba_cmd_header_t *cmd_header = (hba_cmd_header_t *)((uint64_t)this->hba_port->cmd_list_base + ((uint64_t)this->hba_port->cmd_list_base_upper << 32));
     for (int i = 0; i < 32; i++) {
-        cmd_header[i].prdt_len = 8;
+        // cmd_header[i].prdt_len = 8;
 
-        void *cmd_table_addr = pg_alloc_request_page(&global_allocator);
-        uint64_t addr = (uint64_t)cmd_table_addr + (i << 8);
-        cmd_header[i].cmd_table_base_addr = (uint32_t)(uint64_t)addr;
-        cmd_header[i].cmd_table_base_addr_upper = (uint32_t)((uint64_t)addr >> 32);
-        m_memset(cmd_table_addr, 0, 256);
+        // void *cmd_table_addr = pg_alloc_request_page(&global_allocator);
+        // uint64_t addr = (uint64_t)cmd_table_addr + (i << 8);
+        // cmd_header[i].cmd_table_base_addr = (uint32_t)(uint64_t)addr;
+        // cmd_header[i].cmd_table_base_addr_upper = (uint32_t)((uint64_t)addr >> 32);
+        // m_memset(cmd_table_addr, 0, 256);
     }
 
     ahci_port_start_cmd(this);
