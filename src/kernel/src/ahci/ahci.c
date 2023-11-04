@@ -79,6 +79,9 @@ void ahci_driver_probe_ports(ahci_driver_t *this) {
                 this->ports[port_count]->__port_type = __port_type;
                 this->ports[port_count]->port_number = port_count;
                 this->ports[port_count]->hba_port = &this->abar->ports[i];
+                hba_port_t port = *this->ports[port_count]->hba_port;
+                // This is required otherwise it crashes for some reason lmfao
+                printf_ln(__itoa(port.cmd_issue));
                 port_count++;
             }
         }
