@@ -48,6 +48,7 @@ void ahci_driver_init(ahci_driver_t *this, pci_device_header_t *pci_base_addr) {
 
     for (int i = 0; i < this->port_count; i++) {
         ahci_port_t *port = this->ports[i];
+        // uart_puts(port->__port_type);
         ahci_port_configure(port);
     }
 
@@ -88,13 +89,13 @@ void ahci_port_configure(ahci_port_t *this) {
 
     hba_cmd_header_t *cmd_header = (hba_cmd_header_t *)((uint64_t)this->hba_port->cmd_list_base + ((uint64_t)this->hba_port->cmd_list_base_upper << 32));
     for (int i = 0; i < 32; i++) {
-        // cmd_header[i].prdt_len = 8;
+        cmd_header[i].prdt_len = 8;
 
-        // void *cmd_table_addr = pg_alloc_request_page(&global_allocator);
-        // uint64_t addr = (uint64_t)cmd_table_addr + (i << 8);
-        // cmd_header[i].cmd_table_base_addr = (uint32_t)(uint64_t)addr;
-        // cmd_header[i].cmd_table_base_addr_upper = (uint32_t)((uint64_t)addr >> 32);
-        // m_memset(cmd_table_addr, 0, 256);
+        void *cmd_table_addr = pg_alloc_request_page(&global_allocator);
+        uint64_t addr = (uint64_t)cmd_table_addr + (i << 8);
+        cmd_header[i].cmd_table_base_addr = (uint32_t)(uint64_t)addr;
+        cmd_header[i].cmd_table_base_addr_upper = (uint32_t)((uint64_t)addr >> 32);
+        m_memset(cmd_table_addr, 0, 256);
     }
 
     ahci_port_start_cmd(this);

@@ -30,7 +30,7 @@ void pg_alloc_read_memory_map(page_frame_allocator_t *this, Memory_Map_Descripto
     uint64_t bitmap_size = memory_size / 4096 / 8 + 1;
 
     pg_alloc_init_bitmap(this, bitmap_size, largest_free_memory_seg);
-    pg_alloc_lock_pages(this, &this->bitmap.buffer, this->bitmap.size / 4096 + 1);
+    pg_alloc_lock_pages(this, &this->bitmap, this->bitmap.size / 4096 + 1);
 
     for (int i = 0; i < mmap_entries; i++) {
         Memory_Map_Descriptor *desc = (Memory_Map_Descriptor *)((uint64_t)mmap + (i * mmap_desc_size));

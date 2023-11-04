@@ -40,14 +40,6 @@ uint32_t shell_name_color = LIGHTGREEN;
 #define low_16(address) (uint16_t)((address)&0xFFFF)
 #define high_16(address) (uint16_t)(((address) >> 16) & 0xFFFF)
 
-void keyboard_handler(struct Registers *regs) {
-    char ch = inb(0x60);
-    char keycode = get_ascii_char(ch, false);
-
-    char kc[2] = {keycode, '\0'};
-    uart_puts(kc);
-}
-
 uint8_t test_buffer[20];
 
 extern uint64_t kernel_start;
@@ -133,6 +125,24 @@ void kernel_main(Boot_Info *boot_info) {
     uart_puts(to_hstring64((uint64_t)boot_info->rsdp));
     uart_puts("\n");
 
+    graphics_init();
+    set_divisor(65535); // pit
+
+    uint64_t mmap_entries = kernel_info->mmap_size / kernel_info->mmap_descriptor_size;
+    pg_alloc_read_memory_map(&global_allocator, kernel_info->memory_map, kernel_info->mmap_size, kernel_info->mmap_descriptor_size);
+
+    uint64_t kernel_size = (uint64_t)&kernel_end - (uint64_t)&kernel_start;
+    uint64_t kernel_pages = (uint64_t)kernel_size / 4096 + 1;
+    pg_alloc_lock_pages(&global_allocator, &kernel_start, kernel_pages);
+
+    uint64_t framebuffer_base = (uint64_t)kernel_info->video_mode_info.framebuffer_pointer;
+    uint64_t framebuffer_size = (uint64_t)kernel_info->video_mode_info.framebuffer_size + 0x1000;
+    pg_alloc_lock_pages(&global_allocator, (void *)framebuffer_base, framebuffer_size / 0x1000);
+
+    uart_puts("Used MEMA: ");
+    uart_puts(__itoa(get_used_ram()));
+    uart_puts("\n");
+
     prepare_acpi();
 
     // paging and memory - start
@@ -151,11 +161,7 @@ void kernel_main(Boot_Info *boot_info) {
     // outb(PIC2_DATA, 0b11101111);
     // STI();
 
-    graphics_init();
     set_divisor(65535); // pit
-
-    uint64_t mmap_entries = kernel_info->mmap_size / kernel_info->mmap_descriptor_size;
-    pg_alloc_read_memory_map(&global_allocator, kernel_info->memory_map, kernel_info->mmap_size, kernel_info->mmap_descriptor_size);
 
     // uint64_t kernel_size = (uint64_t)&kernel_end - (uint64_t)&kernel_start;
     // uint64_t kernel_pages = (uint64_t)kernel_size / 4096 + 1;
@@ -178,9 +184,6 @@ void kernel_main(Boot_Info *boot_info) {
     //         break;
     //     pt_manager_map_memory(&page_table_manager, (void *)t, (void *)t);
     // }
-    uint64_t framebuffer_base = (uint64_t)kernel_info->video_mode_info.framebuffer_pointer;
-    uint64_t framebuffer_size = (uint64_t)kernel_info->video_mode_info.framebuffer_size + 0x1000;
-    pg_alloc_lock_pages(&global_allocator, (void *)framebuffer_base, framebuffer_size / 0x1000);
 
     // for (uint64_t t = framebuffer_base; t < framebuffer_base + framebuffer_size; t += 4096) {
     //     uart_puts(to_hstring64(t));
