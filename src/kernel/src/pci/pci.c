@@ -31,8 +31,9 @@ void enumerate_function(uint64_t device_addr, uint64_t function) {
         case 0x06:
             switch (pci_device_header->prog_if) {
             case 0x01: {
-                ahci_driver_t *ahci_driver = (void *)__malloc(sizeof(ahci_driver_t));
-                ahci_driver_init(ahci_driver, pci_device_header);
+                // AHCI DRIVER CRAASHES!
+                // ahci_driver_t *ahci_driver = (void *)__malloc(sizeof(ahci_driver_t));
+                // ahci_driver_init(ahci_driver, pci_device_header);
             }
             }
         }
