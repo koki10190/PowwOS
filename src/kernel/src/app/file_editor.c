@@ -14,7 +14,7 @@
 static window_t *fe_window;
 static file_t *file_to_edit = NULL;
 static char file_path[128] = "";
-static char file_buffer[256] = "";
+static char file_buffer[1024] = "";
 static int file_buffer_index = 0;
 static int file_path_index = 0;
 
@@ -83,29 +83,29 @@ void file_edit_keyboard(uint8_t scancode) {
         file_to_edit->buffer = (uint8_t *)buffer;
         file_to_edit = NULL;
 
-        for (int i = 0; i < 256; i++) {
+        for (int i = 0; i < 1024; i++) {
             file_buffer[i] = '\0';
         }
         file_buffer_index = 0;
     } else if (scancode == KEY_ESC) {
         file_to_edit = NULL;
-        for (int i = 0; i < 256; i++) {
+        for (int i = 0; i < 1024; i++) {
             file_buffer[i] = '\0';
         }
         file_buffer_index = 0;
     } else if (scancode == KEY_BACKSPACE && file_buffer_index > 0) {
         file_buffer[--file_buffer_index] = '\0';
     } else if (scancode == KEY_ENTER) {
-        if (file_buffer_index >= 256)
+        if (file_buffer_index >= 1024)
             return;
         file_buffer[file_buffer_index++] = '\r';
         file_buffer[file_buffer_index++] = '\n';
     } else if (scancode == KEY_SPACE) {
-        if (file_buffer_index >= 256)
+        if (file_buffer_index >= 1024)
             return;
         file_buffer[file_buffer_index++] = ' ';
     } else {
-        if (file_buffer_index >= 256)
+        if (file_buffer_index >= 1024)
             return;
         if (ascii != '\0')
             file_buffer[file_buffer_index++] = ascii;

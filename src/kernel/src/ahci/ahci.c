@@ -57,15 +57,20 @@ void ahci_driver_init(ahci_driver_t *this, pci_device_header_t *pci_base_addr) {
 
         port->buffer = pg_alloc_request_page(&global_allocator);
         m_memset(port->buffer, 0, 0x1000);
-        // uint8_t buffer[1024];
-        ahci_port_read(port, 0, 4, port->buffer);
+        uint8_t buffer[1024];
+        bool rad = ahci_port_read(port, 0, 4, port->buffer);
+        printf_ln(rad ? "read!" : "nuh uh");
         for (int i = 0; i < 1024; i++) {
+            if (port->buffer[i] == '\0')
+                uart_putchar('!');
+            if (port->buffer[i] == ' ')
+                uart_putchar('?');
             uart_putchar(port->buffer[i]);
         }
-        // uart_puts("\n");
+        uart_puts("\n");
     }
 
-    // uart_puts("[POWW-KERNEL] AHCI Driver initialized\n");
+    uart_puts("[POWW-KERNEL] AHCI Driver initialized\n");
 }
 
 void ahci_driver_probe_ports(ahci_driver_t *this) {
@@ -75,14 +80,14 @@ void ahci_driver_probe_ports(ahci_driver_t *this) {
             port_type __port_type = check_port_type(&this->abar->ports[i]);
 
             if (__port_type == SATA || __port_type == SATAPI) {
-                this->ports[port_count] = (void *)__malloc(sizeof(ahci_port_t));
+                this->ports[port_count] = (void *)dumbass_malloc(sizeof(ahci_port_t));
                 this->ports[port_count]->__port_type = __port_type;
                 this->ports[port_count]->port_number = port_count;
                 this->ports[port_count]->hba_port = &this->abar->ports[i];
                 hba_port_t port = *this->ports[port_count]->hba_port;
                 // This is required otherwise it crashes for some reason lmfao
                 // printf_ln(__itoa(__port_type));
-                printf_ln(__itoa(port.cmd_issue));
+                // printf_ln(__itoa(port.cmd_issue));
                 port_count++;
             }
         }
@@ -117,8 +122,8 @@ void ahci_port_configure(ahci_port_t *this) {
 }
 
 void ahci_port_start_cmd(ahci_port_t *this) {
-    while (this->hba_port->cmd_status & HBA_PXCMD_CR)
-        ;
+    // while (this->hba_port->cmd_status & HBA_PXCMD_CR)
+    //     ;
 
     this->hba_port->cmd_status |= HBA_PXCMD_FRE;
     this->hba_port->cmd_status |= HBA_PXCMD_ST;
@@ -127,14 +132,14 @@ void ahci_port_stop_cmd(ahci_port_t *this) {
     this->hba_port->cmd_status &= ~HBA_PXCMD_ST;
     this->hba_port->cmd_status &= ~HBA_PXCMD_FRE;
 
-    while (true) {
-        if (this->hba_port->cmd_status & HBA_PXCMD_FR)
-            continue;
-        if (this->hba_port->cmd_status & HBA_PXCMD_CR)
-            continue;
+    // while (true) {
+    //     if (this->hba_port->cmd_status & HBA_PXCMD_FR)
+    //         continue;
+    //     if (this->hba_port->cmd_status & HBA_PXCMD_CR)
+    //         continue;
 
-        break;
-    }
+    //     break;
+    // }
 }
 
 bool ahci_port_read(ahci_port_t *this, uint64_t sector, uint32_t sector_count, void *buffer) {
@@ -179,7 +184,7 @@ bool ahci_port_read(ahci_port_t *this, uint64_t sector, uint32_t sector_count, v
     if (spin == 1000000) {
         return false;
     }
-    // uart_puts("read!");
+    uart_puts("read!");
 
     this->hba_port->cmd_issue = 1;
 

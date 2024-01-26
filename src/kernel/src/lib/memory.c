@@ -50,7 +50,7 @@ uint32_t pheap_end = 0;
 uint8_t *pheap_desc = 0;
 uint32_t memory_used = 0;
 
-char *__malloc(size_t size) {
+char *dumbass_malloc(size_t size) {
     if (!size)
         return 0;
 

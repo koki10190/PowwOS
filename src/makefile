@@ -32,7 +32,7 @@ QEMU_FLAGS :=                                                \
 	-drive file=${DISK_IMG},format=raw    \
 	-drive file=../iso/blank.img,format=raw    \
 	-cpu host \
-	-m 2G \
+	-m 1024M \
 	-bios OVMF.fd                                              \
 	-serial stdio                                              \
 	-usb                                                       \

@@ -27,6 +27,8 @@
 #include <ramfs/fs.h>
 #include <stdio.h>
 #include <cpuid.h>
+#include <heap/heap.h>
+#include <math/math.h>
 
 #define MATCH_BG_COLOR display_color == WHITE ? BLACK : WHITE
 
@@ -115,35 +117,86 @@ void create_desktop_icons() {
 
 void kernel_main(Boot_Info *boot_info) {
     kernel_info = boot_info;
+
     // Init UART
     uart_initialize();
+    printf("\n\n");
     printf("Initializing Kernel...");
     printf("\nRSDP: ");
     printf(to_hstring64((uint64_t)boot_info->rsdp));
     printf("\n");
+    printf("Memory Size: ");
+    printf_ln(to_string64(get_memory_size(boot_info->memory_map, boot_info->mmap_size / boot_info->mmap_descriptor_size, boot_info->mmap_descriptor_size)));
 
-    graphics_init();    // init graphics
-    set_divisor(65535); // pit
+    graphics_init(); // init graphics
 
     /// Read through the memory map
     uint64_t mmap_entries = kernel_info->mmap_size / kernel_info->mmap_descriptor_size;
     pg_alloc_read_memory_map(&global_allocator, kernel_info->memory_map, kernel_info->mmap_size, kernel_info->mmap_descriptor_size);
 
     // Lock kernel
+    void *addr = pg_alloc_request_page(&global_allocator);
+
     uint64_t kernel_size = (uint64_t)&kernel_end - (uint64_t)&kernel_start;
+    printf("KernelS ");
+    printf_ln(__itoa(kernel_size));
     uint64_t kernel_pages = (uint64_t)kernel_size / 4096 + 1;
     pg_alloc_lock_pages(&global_allocator, &kernel_start, kernel_pages);
+    // for (int i = 0; i < kernel_pages; i++) {
+    //     pg_alloc_request_page(&global_allocator);
+    // }
 
-    // Lock framebuffer
-    uint64_t framebuffer_base = (uint64_t)kernel_info->video_mode_info.framebuffer_pointer;
-    uint64_t framebuffer_size = (uint64_t)kernel_info->video_mode_info.framebuffer_size + 0x1000;
-    pg_alloc_lock_pages(&global_allocator, (void *)framebuffer_base, framebuffer_size / 0x1000);
+    // page_table_t *pml4 = (page_table_t *)pg_alloc_request_page(&global_allocator);
+    // m_memset(pml4, 0, 0x1000);
+    // printf_ln("PML4 Constructed");
 
+    // page_table_manager_t page_table_manager;
+    // pt_manager_construct(&page_table_manager, pml4);
+    // printf_ln("PT Manager Constructed");
+
+    // for (uint64_t t = 0; t < get_memory_size(kernel_info->memory_map, mmap_entries, kernel_info->mmap_descriptor_size); t += 0x1000) {
+    //     // printf_ln(__itoa(t));
+    //     pt_manager_map_memory(&page_table_manager, (void *)t, (void *)t);
+    // }
+    // printf_ln("Memory Mapped");
+
+    // // // Lock framebuffer
+    // uint64_t framebuffer_base = (uint64_t)kernel_info->video_mode_info.framebuffer_pointer;
+    // uint64_t framebuffer_size = (uint64_t)kernel_info->video_mode_info.framebuffer_size + 4096;
+    // // pg_alloc_lock_pages(&global_allocator, (void *)framebuffer_base, framebuffer_size / 4096);
+    // // for (int i = 0; i < framebuffer_size / 0x1000; i++) {
+    // // pg_alloc_request_page(&global_allocator);
+    // // }
+    // // page_ta
+    // for (uint64_t t = framebuffer_base; t < framebuffer_base + framebuffer_size; t += 4096) {
+    //     pt_manager_map_memory(&page_table_manager, (void *)t, (void *)t);
+    // }
+    // printf_ln("Framebuffer Mapped");
+
+    // // asm("mov %0, %%cr3" ::"r"(pml4));
+
+    // // init_heap((void *)pg_alloc_request_page(&global_allocator), 0x10);
+    // // int *integer =
+
+    // pt_manager_map_memory(&page_table_manager, (void *)0x600000000, (void *)0x80000);
+    // uint64_t *test = (uint64_t *)0x600000000;
+    // *test = 20;
+    // printf_ln(__itoa(*test));
+
+    // heap_bm_t kheap;
     // Prepare ACPI
-    prepare_acpi();
+    // prepare_acpi();
 
     // GDT and Interrupts Setup
     uart_puts("[POWW-KERNEL] Initialised.\n");
+    // int *invalid_ptr1 = (int *)0x;
+    // *invalid_ptr1 = 5;
+    // printf("VALUE: ");
+    // printf_ln(__itoa(*invalid_ptr1));
+    // int *invalid_ptr2 = invalid_ptr1;
+    // printf("VALUE2: ");
+    // printf_ln(to_hstring64((uint64_t)invalid_ptr2));
+
     gdt_descriptor __gdt_descriptor;
     __gdt_descriptor.size = sizeof(gdt) - 1;
     __gdt_descriptor.offset = (uint64_t)&default_gdt;
@@ -162,12 +215,20 @@ void kernel_main(Boot_Info *boot_info) {
     // Init shitty RamFS
     init_ramfs();
 
+    // printf_ln("REQ TEST");
+    // for (int i = 0; i < 20; i++) {
+    //     void *addr = pg_alloc_request_page(&global_allocator);
+    //     printf_ln(to_hstring64((uint64_t)addr));
+    // }
+
     int tick;
     while (1) {
+        // printf_ln("testr");
         process_mouse_packet();
 
         // Swap from third buffer to the second
         swap_buffers();
+
         desktop_icon_handler();
 
         window_manager_handler();
@@ -178,7 +239,7 @@ void kernel_main(Boot_Info *boot_info) {
         render_mouse_cursor(pointer_bitmap, mouse.position, display_color == WHITE ? BLACK : WHITE);
 
         // Swap from second buffer to the front buffer
-        __memcpy(kernel_info->video_mode_info.framebuffer_pointer, &back_buffer, 4096000);
+        __memcpy(kernel_info->video_mode_info.framebuffer_pointer, &back_buffer, kernel_info->video_mode_info.framebuffer_size);
 
         // Increment random seed
         seed(++rseed);

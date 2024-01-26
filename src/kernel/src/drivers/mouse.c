@@ -6,6 +6,7 @@
 #include <boot.h>
 #include <display/display.h>
 #include <graphics/graphics.h>
+#include <stdio.h>
 
 uint8_t pointer_bitmap[] = {
     0b11111111,
@@ -212,8 +213,9 @@ void process_mouse_packet() {
     render_topbar();
     clear_mouse_cursor(pointer_bitmap, mouse_position_old);
     render_mouse_cursor(pointer_bitmap, mouse.position, display_color == WHITE ? BLACK : WHITE);
-    mouse_position_old.x = mouse.position.x;
-    mouse_position_old.y = mouse.position.y;
+
+    mouse.movement.x = (mouse.position.x - mouse_position_old.x);
+    mouse.movement.y = (mouse.position.y - mouse_position_old.y);
 
     if (mouse_packet[0] & PS2Leftbutton) {
         mouse.left_clicked = true;

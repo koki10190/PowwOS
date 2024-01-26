@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <uart.h>
 
-void printf(char *s) {
+void printf(const char *s) {
     uart_puts(s);
 }
 

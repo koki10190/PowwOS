@@ -143,7 +143,7 @@ uint32_t mouse_cursor_buffer_after[16 * 16];
 void graphics_init() {
     // uint32_t m_toswap_buffer[1280 * 1080];
     // toswap_buffer = m_toswap_buffer;
-    // back_buffer = (void *)__malloc(4096000);
+    // back_buffer = (void *)dumbass_malloc(4096000);
 }
 
 uint32_t get_pixel(int x, int y) {
@@ -181,6 +181,7 @@ void swap_buffers() {
     for (int yy = 0; yy < kernel_info->video_mode_info.vertical_resolution; yy++) {
         for (int xx = 0; xx < kernel_info->video_mode_info.horizontal_resolution; xx++) {
             back_buffer[xx + (yy * kernel_info->video_mode_info.horizontal_resolution)] = kernel_info->video_mode_info.pixel_buffer[xx + (yy * kernel_info->video_mode_info.horizontal_resolution)];
+            // *((uint32_t *)(gop->Mode->FrameBufferBase + 4 * gop->Mode->Info->PixelsPerScanLine * y + 4 * x)) = pixel;
         }
     }
 }
@@ -392,4 +393,30 @@ bool collision(vector2_t pos1, vector2_t size1, vector2_t pos2, vector2_t size2)
         pos1.y + size1.y >= pos2.y && // box1 bottom collides with box2 top
         pos2.y + size2.y >= pos1.y    // box1 top collides with box2 bottom
     );
+}
+
+uint32_t RGB(int r, int g, int b) {
+    return ((r & 0xff) << 24) + ((g & 0xff) << 16) + ((b & 0xff) << 8);
+}
+
+void render_gradient_rectangle(int x_start, int y_start, int x_end, int y_end, int color1, int color2) {
+    int x, y;
+    int r1 = (color1 & 0xFF0000) >> 16;
+    int r2 = (color2 & 0xFF0000) >> 16;
+    int g1 = (color1 & 0x00FF00) >> 8;
+    int g2 = (color2 & 0x00FF00) >> 8;
+    int b1 = color1 & 0x0000FF;
+    int b2 = color2 & 0x0000FF;
+    int h = ABS(y_end - y_start);
+    double d_r = (double)(r2 - r1) / h;
+    double d_g = (double)(g2 - g1) / h;
+    double d_b = (double)(b2 - b1) / h;
+    double cur_r = r1, cur_g = g1, cur_b = b1;
+    for (y = y_start; y <= y_end; y++) {
+        for (x = x_start; x <= x_end; x++)
+            plot_pixel_buffer(x, y, RGB((int)cur_r, (int)cur_g, (int)cur_b), back_buffer);
+        cur_r += d_r;
+        cur_g += d_g;
+        cur_b += d_b;
+    }
 }

@@ -42,4 +42,7 @@ void clear_mouse_cursor(uint8_t *mouse_cursor, vector2_t pos);
 void render_text_bb(const char *s, size_t x, size_t y, uint32_t color);
 bool collision(vector2_t pos1, vector2_t size1, vector2_t pos2, vector2_t size2);
 
+uint32_t RGB(int r, int g, int b);
+void render_gradient_rectangle(int x_start, int y_start, int x_end, int y_end, int color1, int color2);
+
 #endif
